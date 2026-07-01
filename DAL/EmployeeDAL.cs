@@ -8,89 +8,210 @@ namespace DiDongViet_SalesManagement.DAL
 {
     public class EmployeeDAL
     {
-        /// <summary>
-        /// Lấy danh sách tất cả nhân viên
-        /// </summary>
-        public static List<EmployeeDTO> GetAllEmployees()
+        private DatabaseConnection dbConnection = new DatabaseConnection();
+
+        // Lấy danh sách tất cả nhân viên
+        public List<EmployeeDTO> GetAllEmployees()
         {
             List<EmployeeDTO> employees = new List<EmployeeDTO>();
             try
             {
-                DataTable dt = DatabaseConnection.ExecuteStoredProcedure("sp_GetAllEmployees");
-                foreach (DataRow row in dt.Rows)
+                using (SqlConnection conn = dbConnection.GetConnection())
                 {
-                    EmployeeDTO employee = new EmployeeDTO
+                    string query = "SELECT * FROM NhanVien ORDER BY MaNV";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
                     {
-                        MaNV = Convert.ToInt32(row["MaNV"]),
-                        HoTen = row["HoTen"].ToString(),
-                        NgaySinh = Convert.ToDateTime(row["NgaySinh"]),
-                        GioiTinh = row["GioiTinh"].ToString(),
-                        DienThoai = row["DienThoai"].ToString(),
-                        Email = row["Email"].ToString(),
-                        DiaChi = row["DiaChi"].ToString(),
-                        ChucVu = row["ChucVu"].ToString(),
-                        NgayVaoLam = Convert.ToDateTime(row["NgayVaoLam"]),
-                        TrangThai = Convert.ToBoolean(row["TrangThai"])
-                    };
-                    employees.Add(employee);
+                        employees.Add(new EmployeeDTO
+                        {
+                            MaNV = (int)reader["MaNV"],
+                            HoTen = reader["HoTen"].ToString(),
+                            NgaySinh = reader["NgaySinh"] != DBNull.Value ? (DateTime)reader["NgaySinh"] : DateTime.Now,
+                            GioiTinh = reader["GioiTinh"].ToString(),
+                            SoDienThoai = reader["SoDienThoai"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            DiaChi = reader["DiaChi"].ToString(),
+                            ChucVu = reader["ChucVu"].ToString(),
+                            NgayVaoLam = reader["NgayVaoLam"] != DBNull.Value ? (DateTime)reader["NgayVaoLam"] : DateTime.Now,
+                            TrangThai = reader["TrangThai"].ToString()
+                        });
+                    }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi lấy danh sách nhân viên: " + ex.Message);
+                Console.WriteLine("Lỗi lấy danh sách nhân viên: " + ex.Message);
             }
             return employees;
         }
 
-        /// <summary>
-        /// Thêm nhân viên mới
-        /// </summary>
-        public static void InsertEmployee(EmployeeDTO employee)
+        // Lấy nhân viên theo ID
+        public EmployeeDTO GetEmployeeByID(int employeeID)
         {
             try
             {
-                SqlParameter[] parameters = new SqlParameter[]
+                using (SqlConnection conn = dbConnection.GetConnection())
                 {
-                    new SqlParameter("@HoTen", employee.HoTen),
-                    new SqlParameter("@NgaySinh", employee.NgaySinh),
-                    new SqlParameter("@GioiTinh", employee.GioiTinh),
-                    new SqlParameter("@DienThoai", employee.DienThoai),
-                    new SqlParameter("@Email", employee.Email),
-                    new SqlParameter("@DiaChi", employee.DiaChi),
-                    new SqlParameter("@ChucVu", employee.ChucVu)
-                };
-                DatabaseConnection.ExecuteStoredProcedureNonQuery("sp_InsertEmployee", parameters);
+                    string query = "SELECT * FROM NhanVien WHERE MaNV = @MaNV";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@MaNV", employeeID);
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        return new EmployeeDTO
+                        {
+                            MaNV = (int)reader["MaNV"],
+                            HoTen = reader["HoTen"].ToString(),
+                            NgaySinh = reader["NgaySinh"] != DBNull.Value ? (DateTime)reader["NgaySinh"] : DateTime.Now,
+                            GioiTinh = reader["GioiTinh"].ToString(),
+                            SoDienThoai = reader["SoDienThoai"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            DiaChi = reader["DiaChi"].ToString(),
+                            ChucVu = reader["ChucVu"].ToString(),
+                            NgayVaoLam = reader["NgayVaoLam"] != DBNull.Value ? (DateTime)reader["NgayVaoLam"] : DateTime.Now,
+                            TrangThai = reader["TrangThai"].ToString()
+                        };
+                    }
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi thêm nhân viên: " + ex.Message);
+                Console.WriteLine("Lỗi lấy nhân viên: " + ex.Message);
+            }
+            return null;
+        }
+
+        // Thêm nhân viên mới
+        public bool AddEmployee(EmployeeDTO employee)
+        {
+            try
+            {
+                using (SqlConnection conn = dbConnection.GetConnection())
+                {
+                    string query = @"INSERT INTO NhanVien (HoTen, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, ChucVu, NgayVaoLam, TrangThai, NgayTao)
+                                    VALUES (@HoTen, @NgaySinh, @GioiTinh, @SoDienThoai, @Email, @DiaChi, @ChucVu, @NgayVaoLam, @TrangThai, GETDATE())";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@HoTen", employee.HoTen);
+                    cmd.Parameters.AddWithValue("@NgaySinh", employee.NgaySinh);
+                    cmd.Parameters.AddWithValue("@GioiTinh", employee.GioiTinh ?? "Nam");
+                    cmd.Parameters.AddWithValue("@SoDienThoai", employee.SoDienThoai ?? "");
+                    cmd.Parameters.AddWithValue("@Email", employee.Email ?? "");
+                    cmd.Parameters.AddWithValue("@DiaChi", employee.DiaChi ?? "");
+                    cmd.Parameters.AddWithValue("@ChucVu", employee.ChucVu ?? "Nhân viên bán hàng");
+                    cmd.Parameters.AddWithValue("@NgayVaoLam", employee.NgayVaoLam);
+                    cmd.Parameters.AddWithValue("@TrangThai", employee.TrangThai ?? "Hoạt động");
+
+                    conn.Open();
+                    int result = cmd.ExecuteNonQuery();
+                    return result > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi thêm nhân viên: " + ex.Message);
+                return false;
             }
         }
 
-        /// <summary>
-        /// Cập nhật nhân viên
-        /// </summary>
-        public static void UpdateEmployee(EmployeeDTO employee)
+        // Cập nhật nhân viên
+        public bool UpdateEmployee(EmployeeDTO employee)
         {
             try
             {
-                SqlParameter[] parameters = new SqlParameter[]
+                using (SqlConnection conn = dbConnection.GetConnection())
                 {
-                    new SqlParameter("@MaNV", employee.MaNV),
-                    new SqlParameter("@HoTen", employee.HoTen),
-                    new SqlParameter("@NgaySinh", employee.NgaySinh),
-                    new SqlParameter("@GioiTinh", employee.GioiTinh),
-                    new SqlParameter("@DienThoai", employee.DienThoai),
-                    new SqlParameter("@Email", employee.Email),
-                    new SqlParameter("@DiaChi", employee.DiaChi),
-                    new SqlParameter("@ChucVu", employee.ChucVu)
-                };
-                DatabaseConnection.ExecuteStoredProcedureNonQuery("sp_UpdateEmployee", parameters);
+                    string query = @"UPDATE NhanVien SET HoTen=@HoTen, NgaySinh=@NgaySinh, GioiTinh=@GioiTinh, 
+                                    SoDienThoai=@SoDienThoai, Email=@Email, DiaChi=@DiaChi, ChucVu=@ChucVu, 
+                                    NgayVaoLam=@NgayVaoLam, TrangThai=@TrangThai WHERE MaNV=@MaNV";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@MaNV", employee.MaNV);
+                    cmd.Parameters.AddWithValue("@HoTen", employee.HoTen);
+                    cmd.Parameters.AddWithValue("@NgaySinh", employee.NgaySinh);
+                    cmd.Parameters.AddWithValue("@GioiTinh", employee.GioiTinh);
+                    cmd.Parameters.AddWithValue("@SoDienThoai", employee.SoDienThoai ?? "");
+                    cmd.Parameters.AddWithValue("@Email", employee.Email ?? "");
+                    cmd.Parameters.AddWithValue("@DiaChi", employee.DiaChi ?? "");
+                    cmd.Parameters.AddWithValue("@ChucVu", employee.ChucVu);
+                    cmd.Parameters.AddWithValue("@NgayVaoLam", employee.NgayVaoLam);
+                    cmd.Parameters.AddWithValue("@TrangThai", employee.TrangThai);
+
+                    conn.Open();
+                    int result = cmd.ExecuteNonQuery();
+                    return result > 0;
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi cập nhật nhân viên: " + ex.Message);
+                Console.WriteLine("Lỗi cập nhật nhân viên: " + ex.Message);
+                return false;
             }
+        }
+
+        // Xóa nhân viên
+        public bool DeleteEmployee(int employeeID)
+        {
+            try
+            {
+                using (SqlConnection conn = dbConnection.GetConnection())
+                {
+                    string query = "DELETE FROM NhanVien WHERE MaNV = @MaNV";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@MaNV", employeeID);
+
+                    conn.Open();
+                    int result = cmd.ExecuteNonQuery();
+                    return result > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi xóa nhân viên: " + ex.Message);
+                return false;
+            }
+        }
+
+        // Tìm kiếm nhân viên
+        public List<EmployeeDTO> SearchEmployees(string keyword)
+        {
+            List<EmployeeDTO> employees = new List<EmployeeDTO>();
+            try
+            {
+                using (SqlConnection conn = dbConnection.GetConnection())
+                {
+                    string query = @"SELECT * FROM NhanVien WHERE HoTen LIKE @Keyword OR SoDienThoai LIKE @Keyword ORDER BY MaNV";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Keyword", "%" + keyword + "%");
+                    conn.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        employees.Add(new EmployeeDTO
+                        {
+                            MaNV = (int)reader["MaNV"],
+                            HoTen = reader["HoTen"].ToString(),
+                            NgaySinh = reader["NgaySinh"] != DBNull.Value ? (DateTime)reader["NgaySinh"] : DateTime.Now,
+                            GioiTinh = reader["GioiTinh"].ToString(),
+                            SoDienThoai = reader["SoDienThoai"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            DiaChi = reader["DiaChi"].ToString(),
+                            ChucVu = reader["ChucVu"].ToString(),
+                            NgayVaoLam = reader["NgayVaoLam"] != DBNull.Value ? (DateTime)reader["NgayVaoLam"] : DateTime.Now,
+                            TrangThai = reader["TrangThai"].ToString()
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi tìm kiếm nhân viên: " + ex.Message);
+            }
+            return employees;
         }
     }
 }
