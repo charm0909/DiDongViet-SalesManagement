@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiDongViet_SalesManagement.DTO
 {
@@ -12,11 +8,12 @@ namespace DiDongViet_SalesManagement.DTO
         public string HoTen { get; set; }
         public DateTime NgaySinh { get; set; }
         public string GioiTinh { get; set; }
-        public string DienThoai { get; set; }
+        public string SoDienThoai { get; set; }
         public string Email { get; set; }
         public string DiaChi { get; set; }
         public string ChucVu { get; set; }
         public DateTime NgayVaoLam { get; set; }
-        public bool TrangThai { get; set; }
+        public DateTime NgayTao { get; set; }
+        public string TrangThai { get; set; }
     }
 }
