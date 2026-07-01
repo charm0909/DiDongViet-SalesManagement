@@ -8,8 +8,8 @@ namespace BLL
     public class ImportBLL
     {
         private ImportDAL importDAL = new ImportDAL();
+        private ProductDAL productDAL = new ProductDAL();
 
-        // Lấy tất cả phiếu nhập
         public List<ImportDTO> GetAllImports()
         {
             try
@@ -22,7 +22,6 @@ namespace BLL
             }
         }
 
-        // Lấy phiếu nhập theo ID
         public ImportDTO GetImportByID(int importID)
         {
             try
@@ -38,53 +37,32 @@ namespace BLL
             }
         }
 
-        // Tạo phiếu nhập mới
-        public bool CreateImport(ImportDTO import)
+        public bool AddImport(ImportDTO import)
         {
             try
             {
-                // Validate dữ liệu
-                if (import == null)
-                    throw new Exception("Phiếu nhập không được để trống!");
-
                 if (string.IsNullOrEmpty(import.SupplierName))
                     throw new Exception("Tên nhà cung cấp không được để trống!");
 
                 if (import.Details == null || import.Details.Count == 0)
-                    throw new Exception("Phiếu nhập phải có ít nhất 1 chi tiết!");
+                    throw new Exception("Phiếu nhập phải có ít nhất 1 sản phẩm!");
 
-                if (import.ImportDate == null)
-                    import.ImportDate = DateTime.Now;
+                if (import.TotalAmount <= 0)
+                    throw new Exception("Tổng tiền nhập phải lớn hơn 0!");
 
-                // Tính tổng tiền
-                decimal total = 0;
-                foreach (var detail in import.Details)
-                {
-                    if (detail.Quantity <= 0)
-                        throw new Exception("Số lượng sản phẩm phải lớn hơn 0!");
-
-                    if (detail.ImportPrice < 0)
-                        throw new Exception("Giá nhập không được âm!");
-
-                    total += detail.Total;
-                }
-
-                import.TotalAmount = total;
-
-                return importDAL.CreateImport(import);
+                return importDAL.AddImport(import);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi tạo phiếu nhập: " + ex.Message);
+                throw new Exception("Lỗi thêm phiếu nhập: " + ex.Message);
             }
         }
 
-        // Cập nhật phiếu nhập
         public bool UpdateImport(ImportDTO import)
         {
             try
             {
-                if (import == null || import.ImportID <= 0)
+                if (import.ImportID <= 0)
                     throw new Exception("ID phiếu nhập không hợp lệ!");
 
                 return importDAL.UpdateImport(import);
@@ -95,7 +73,6 @@ namespace BLL
             }
         }
 
-        // Xóa phiếu nhập
         public bool DeleteImport(int importID)
         {
             try
@@ -111,19 +88,36 @@ namespace BLL
             }
         }
 
-        // Tìm kiếm phiếu nhập theo nhà cung cấp
-        public List<ImportDTO> SearchImportsBySupplier(string supplierName)
+        public List<ImportDTO> GetImportsBySupplier(string supplierName)
         {
             try
             {
                 if (string.IsNullOrEmpty(supplierName))
-                    throw new Exception("Tên nhà cung cấp không được để trống!");
+                    return GetAllImports();
 
-                return importDAL.SearchImportsBySupplier(supplierName);
+                return importDAL.GetImportsBySupplier(supplierName);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi tìm kiếm phiếu nhập: " + ex.Message);
+                throw new Exception("Lỗi lấy phiếu nhập theo nhà cung cấp: " + ex.Message);
+            }
+        }
+
+        // Tính tổng tiền nhập
+        public decimal CalculateTotalAmount(List<ImportDetailDTO> details)
+        {
+            try
+            {
+                decimal total = 0;
+                foreach (var detail in details)
+                {
+                    total += detail.Total;
+                }
+                return total;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi tính toán tổng tiền: " + ex.Message);
             }
         }
     }

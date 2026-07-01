@@ -1,23 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DiDongViet_SalesManagement.DTO;
-using DiDongViet_SalesManagement.DAL;
+using DAL;
+using DTO;
 
-namespace DiDongViet_SalesManagement.BLL
+namespace BLL
 {
     public class ProductBLL
     {
-        /// <summary>
-        /// Lấy danh sách tất cả sản phẩm
-        /// </summary>
-        public static List<ProductDTO> GetAllProducts()
+        private ProductDAL productDAL = new ProductDAL();
+
+        public List<ProductDTO> GetAllProducts()
         {
             try
             {
-                return ProductDAL.GetAllProducts();
+                return productDAL.GetAllProducts();
             }
             catch (Exception ex)
             {
@@ -25,28 +21,35 @@ namespace DiDongViet_SalesManagement.BLL
             }
         }
 
-        /// <summary>
-        /// Thêm sản phẩm mới với validate
-        /// </summary>
-        public static bool InsertProduct(ProductDTO product)
+        public ProductDTO GetProductByID(int productID)
         {
             try
             {
-                // Validate dữ liệu
-                if (string.IsNullOrWhiteSpace(product.TenSP))
+                if (productID <= 0)
+                    throw new Exception("ID sản phẩm không hợp lệ!");
+
+                return productDAL.GetProductByID(productID);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi lấy sản phẩm: " + ex.Message);
+            }
+        }
+
+        public bool AddProduct(ProductDTO product)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(product.ProductName))
                     throw new Exception("Tên sản phẩm không được để trống!");
 
-                if (product.GiaNhap <= 0)
+                if (product.SalePrice <= 0)
+                    throw new Exception("Giá bán phải lớn hơn 0!");
+
+                if (product.ImportPrice <= 0)
                     throw new Exception("Giá nhập phải lớn hơn 0!");
 
-                if (product.GiaBan <= product.GiaNhap)
-                    throw new Exception("Giá bán phải lớn hơn giá nhập!");
-
-                if (product.MaHang <= 0 || product.MaLoai <= 0)
-                    throw new Exception("Hãng và loại sản phẩm không được để trống!");
-
-                ProductDAL.InsertProduct(product);
-                return true;
+                return productDAL.AddProduct(product);
             }
             catch (Exception ex)
             {
@@ -54,28 +57,20 @@ namespace DiDongViet_SalesManagement.BLL
             }
         }
 
-        /// <summary>
-        /// Cập nhật sản phẩm với validate
-        /// </summary>
-        public static bool UpdateProduct(ProductDTO product)
+        public bool UpdateProduct(ProductDTO product)
         {
             try
             {
-                // Validate dữ liệu
-                if (product.MaSP <= 0)
-                    throw new Exception("Mã sản phẩm không hợp lệ!");
+                if (product.ProductID <= 0)
+                    throw new Exception("ID sản phẩm không hợp lệ!");
 
-                if (string.IsNullOrWhiteSpace(product.TenSP))
+                if (string.IsNullOrEmpty(product.ProductName))
                     throw new Exception("Tên sản phẩm không được để trống!");
 
-                if (product.GiaNhap <= 0)
-                    throw new Exception("Giá nhập phải lớn hơn 0!");
+                if (product.SalePrice <= 0)
+                    throw new Exception("Giá bán phải lớn hơn 0!");
 
-                if (product.GiaBan <= product.GiaNhap)
-                    throw new Exception("Giá bán phải lớn hơn giá nhập!");
-
-                ProductDAL.UpdateProduct(product);
-                return true;
+                return productDAL.UpdateProduct(product);
             }
             catch (Exception ex)
             {
@@ -83,18 +78,14 @@ namespace DiDongViet_SalesManagement.BLL
             }
         }
 
-        /// <summary>
-        /// Xóa sản phẩm
-        /// </summary>
-        public static bool DeleteProduct(int maSP)
+        public bool DeleteProduct(int productID)
         {
             try
             {
-                if (maSP <= 0)
-                    throw new Exception("Mã sản phẩm không hợp lệ!");
+                if (productID <= 0)
+                    throw new Exception("ID sản phẩm không hợp lệ!");
 
-                ProductDAL.DeleteProduct(maSP);
-                return true;
+                return productDAL.DeleteProduct(productID);
             }
             catch (Exception ex)
             {
@@ -102,15 +93,14 @@ namespace DiDongViet_SalesManagement.BLL
             }
         }
 
-        /// <summary>
-        /// Tìm kiếm sản phẩm theo tên
-        /// </summary>
-        public static List<ProductDTO> SearchProductByName(string tenSP)
+        public List<ProductDTO> SearchProducts(string keyword)
         {
             try
             {
-                var allProducts = ProductDAL.GetAllProducts();
-                return allProducts.Where(p => p.TenSP.ToLower().Contains(tenSP.ToLower())).ToList();
+                if (string.IsNullOrEmpty(keyword))
+                    return GetAllProducts();
+
+                return productDAL.SearchProducts(keyword);
             }
             catch (Exception ex)
             {
