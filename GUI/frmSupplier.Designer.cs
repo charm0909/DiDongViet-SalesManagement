@@ -3,21 +3,6 @@ namespace DiDongViet_SalesManagement.GUI
     partial class frmSupplier
     {
         private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.TextBox txtSupplierName;
-        private System.Windows.Forms.TextBox txtPhone;
-        private System.Windows.Forms.TextBox txtEmail;
-        private System.Windows.Forms.TextBox txtAddress;
-        private System.Windows.Forms.TextBox txtSearch;
-        private System.Windows.Forms.Button btnAdd;
-        private System.Windows.Forms.Button btnUpdate;
-        private System.Windows.Forms.Button btnDelete;
-        private System.Windows.Forms.Button btnSearch;
-        private System.Windows.Forms.DataGridView dgvSuppliers;
-        private System.Windows.Forms.Label lblSupplierName;
-        private System.Windows.Forms.Label lblPhone;
-        private System.Windows.Forms.Label lblEmail;
-        private System.Windows.Forms.Label lblAddress;
-        private System.Windows.Forms.Label lblSearch;
 
         protected override void Dispose(bool disposing)
         {
@@ -30,8 +15,8 @@ namespace DiDongViet_SalesManagement.GUI
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.txtSupplierName = new System.Windows.Forms.TextBox();
+            this.dgvSuppliers = new System.Windows.Forms.DataGridView();
+            this.txtName = new System.Windows.Forms.TextBox();
             this.txtPhone = new System.Windows.Forms.TextBox();
             this.txtEmail = new System.Windows.Forms.TextBox();
             this.txtAddress = new System.Windows.Forms.TextBox();
@@ -40,93 +25,131 @@ namespace DiDongViet_SalesManagement.GUI
             this.btnUpdate = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
             this.btnSearch = new System.Windows.Forms.Button();
-            this.dgvSuppliers = new System.Windows.Forms.DataGridView();
-            this.lblSupplierName = new System.Windows.Forms.Label();
-            this.lblPhone = new System.Windows.Forms.Label();
-            this.lblEmail = new System.Windows.Forms.Label();
-            this.lblAddress = new System.Windows.Forms.Label();
-            this.lblSearch = new System.Windows.Forms.Label();
-
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSuppliers)).BeginInit();
             this.SuspendLayout();
 
-            this.lblSearch.Text = "Tìm kiếm:";
-            this.lblSearch.Location = new System.Drawing.Point(20, 20);
-            this.txtSearch.Location = new System.Drawing.Point(100, 20);
-            this.txtSearch.Size = new System.Drawing.Size(300, 25);
-            this.btnSearch.Text = "Tìm";
-            this.btnSearch.Location = new System.Drawing.Point(420, 20);
-            this.btnSearch.Size = new System.Drawing.Size(70, 35);
-            this.btnSearch.BackColor = System.Drawing.Color.FromArgb(0, 123, 255);
-            this.btnSearch.ForeColor = System.Drawing.Color.White;
-            this.btnSearch.Click += btnSearch_Click;
+            this.dgvSuppliers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvSuppliers.Location = new System.Drawing.Point(12, 200);
+            this.dgvSuppliers.Name = "dgvSuppliers";
+            this.dgvSuppliers.Size = new System.Drawing.Size(760, 250);
+            this.dgvSuppliers.TabIndex = 0;
+            this.dgvSuppliers.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvSuppliers_CellClick);
 
-            this.lblSupplierName.Text = "Tên nhà cung cấp:";
-            this.lblSupplierName.Location = new System.Drawing.Point(20, 70);
-            this.txtSupplierName.Location = new System.Drawing.Point(150, 70);
-            this.txtSupplierName.Size = new System.Drawing.Size(250, 25);
+            this.txtName.Location = new System.Drawing.Point(100, 30);
+            this.txtName.Size = new System.Drawing.Size(200, 20);
+            this.txtName.TabIndex = 1;
 
-            this.lblPhone.Text = "Số điện thoại:";
-            this.lblPhone.Location = new System.Drawing.Point(420, 70);
-            this.txtPhone.Location = new System.Drawing.Point(550, 70);
-            this.txtPhone.Size = new System.Drawing.Size(180, 25);
+            this.txtPhone.Location = new System.Drawing.Point(100, 60);
+            this.txtPhone.Size = new System.Drawing.Size(200, 20);
+            this.txtPhone.TabIndex = 2;
 
-            this.lblEmail.Text = "Email:";
-            this.lblEmail.Location = new System.Drawing.Point(20, 110);
-            this.txtEmail.Location = new System.Drawing.Point(150, 110);
-            this.txtEmail.Size = new System.Drawing.Size(250, 25);
+            this.txtEmail.Location = new System.Drawing.Point(100, 90);
+            this.txtEmail.Size = new System.Drawing.Size(200, 20);
+            this.txtEmail.TabIndex = 3;
 
-            this.lblAddress.Text = "Địa chỉ:";
-            this.lblAddress.Location = new System.Drawing.Point(420, 110);
-            this.txtAddress.Location = new System.Drawing.Point(550, 110);
-            this.txtAddress.Size = new System.Drawing.Size(180, 25);
+            this.txtAddress.Location = new System.Drawing.Point(100, 120);
+            this.txtAddress.Size = new System.Drawing.Size(200, 20);
+            this.txtAddress.TabIndex = 4;
 
-            this.btnAdd.Text = "Thêm";
-            this.btnAdd.Location = new System.Drawing.Point(20, 150);
-            this.btnAdd.Size = new System.Drawing.Size(80, 35);
-            this.btnAdd.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+            this.txtSearch.Location = new System.Drawing.Point(100, 160);
+            this.txtSearch.Size = new System.Drawing.Size(200, 20);
+            this.txtSearch.TabIndex = 5;
+
+            this.btnAdd.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(20)))), ((int)(((byte)(60)))));
             this.btnAdd.ForeColor = System.Drawing.Color.White;
-            this.btnAdd.Click += btnAdd_Click;
+            this.btnAdd.Location = new System.Drawing.Point(320, 30);
+            this.btnAdd.Size = new System.Drawing.Size(80, 30);
+            this.btnAdd.Text = "Thêm";
+            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
 
-            this.btnUpdate.Text = "Cập nhật";
-            this.btnUpdate.Location = new System.Drawing.Point(110, 150);
-            this.btnUpdate.Size = new System.Drawing.Size(80, 35);
-            this.btnUpdate.BackColor = System.Drawing.Color.FromArgb(0, 123, 255);
+            this.btnUpdate.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(70)))), ((int)(((byte)(130)))), ((int)(((byte)(180)))));
             this.btnUpdate.ForeColor = System.Drawing.Color.White;
-            this.btnUpdate.Click += btnUpdate_Click;
+            this.btnUpdate.Location = new System.Drawing.Point(410, 30);
+            this.btnUpdate.Size = new System.Drawing.Size(80, 30);
+            this.btnUpdate.Text = "Cập nhật";
+            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
 
-            this.btnDelete.Text = "Xóa";
-            this.btnDelete.Location = new System.Drawing.Point(200, 150);
-            this.btnDelete.Size = new System.Drawing.Size(80, 35);
-            this.btnDelete.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
+            this.btnDelete.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(178)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
             this.btnDelete.ForeColor = System.Drawing.Color.White;
-            this.btnDelete.Click += btnDelete_Click;
+            this.btnDelete.Location = new System.Drawing.Point(500, 30);
+            this.btnDelete.Size = new System.Drawing.Size(80, 30);
+            this.btnDelete.Text = "Xóa";
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
 
-            this.dgvSuppliers.Location = new System.Drawing.Point(20, 200);
-            this.dgvSuppliers.Size = new System.Drawing.Size(740, 400);
-            this.dgvSuppliers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvSuppliers.CellClick += dgvSuppliers_CellClick;
+            this.btnSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(139)))), ((int)(((byte)(34)))));
+            this.btnSearch.ForeColor = System.Drawing.Color.White;
+            this.btnSearch.Location = new System.Drawing.Point(320, 160);
+            this.btnSearch.Size = new System.Drawing.Size(80, 30);
+            this.btnSearch.Text = "Tìm kiếm";
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
 
-            this.ClientSize = new System.Drawing.Size(780, 650);
-            this.Controls.Add(this.lblSearch);
-            this.Controls.Add(this.txtSearch);
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 33);
+            this.label1.Text = "Tên NCC:";
+
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 63);
+            this.label2.Text = "Điện thoại:";
+
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 93);
+            this.label3.Text = "Email:";
+
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 123);
+            this.label4.Text = "Địa chỉ:";
+
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 163);
+            this.label5.Text = "Tìm kiếm:";
+
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(784, 461);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.btnSearch);
-            this.Controls.Add(this.lblSupplierName);
-            this.Controls.Add(this.txtSupplierName);
-            this.Controls.Add(this.lblPhone);
-            this.Controls.Add(this.txtPhone);
-            this.Controls.Add(this.lblEmail);
-            this.Controls.Add(this.txtEmail);
-            this.Controls.Add(this.lblAddress);
-            this.Controls.Add(this.txtAddress);
-            this.Controls.Add(this.btnAdd);
-            this.Controls.Add(this.btnUpdate);
             this.Controls.Add(this.btnDelete);
+            this.Controls.Add(this.btnUpdate);
+            this.Controls.Add(this.btnAdd);
+            this.Controls.Add(this.txtSearch);
+            this.Controls.Add(this.txtAddress);
+            this.Controls.Add(this.txtEmail);
+            this.Controls.Add(this.txtPhone);
+            this.Controls.Add(this.txtName);
             this.Controls.Add(this.dgvSuppliers);
-
+            this.Name = "frmSupplier";
+            this.Text = "Quản lý Nhà cung cấp";
+            this.Load += new System.EventHandler(this.frmSupplier_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvSuppliers)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.DataGridView dgvSuppliers;
+        private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.TextBox txtPhone;
+        private System.Windows.Forms.TextBox txtEmail;
+        private System.Windows.Forms.TextBox txtAddress;
+        private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.Button btnUpdate;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
     }
 }
