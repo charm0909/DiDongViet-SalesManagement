@@ -10,7 +10,6 @@ namespace DAL
     {
         private DatabaseConnection dbConnection = new DatabaseConnection();
 
-        // Lấy tất cả phiếu nhập
         public List<ImportDTO> GetAllImports()
         {
             List<ImportDTO> imports = new List<ImportDTO>();
@@ -19,7 +18,7 @@ namespace DAL
                 using (SqlConnection conn = dbConnection.GetConnection())
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM PhieuNhap", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM PhieuNhap ORDER BY ImportID DESC", conn);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
@@ -28,7 +27,7 @@ namespace DAL
                         {
                             ImportID = (int)reader["ImportID"],
                             SupplierName = reader["SupplierName"].ToString(),
-                            ImportDate = (DateTime)reader["ImportDate"],
+                            ImportDate = reader["ImportDate"] != DBNull.Value ? (DateTime?)reader["ImportDate"] : null,
                             TotalAmount = (decimal)reader["TotalAmount"]
                         };
                         imports.Add(import);
@@ -43,7 +42,6 @@ namespace DAL
             return imports;
         }
 
-        // Lấy phiếu nhập theo ID
         public ImportDTO GetImportByID(int importID)
         {
             try
@@ -61,7 +59,7 @@ namespace DAL
                         {
                             ImportID = (int)reader["ImportID"],
                             SupplierName = reader["SupplierName"].ToString(),
-                            ImportDate = (DateTime)reader["ImportDate"],
+                            ImportDate = reader["ImportDate"] != DBNull.Value ? (DateTime?)reader["ImportDate"] : null,
                             TotalAmount = (decimal)reader["TotalAmount"]
                         };
                         reader.Close();
@@ -77,20 +75,16 @@ namespace DAL
             return null;
         }
 
-        // Tạo phiếu nhập mới
-        public bool CreateImport(ImportDTO import)
+        public bool AddImport(ImportDTO import)
         {
             try
             {
                 using (SqlConnection conn = dbConnection.GetConnection())
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand("spCreateImport", conn)
-                    {
-                        CommandType = CommandType.StoredProcedure
-                    };
+                    SqlCommand cmd = new SqlCommand("INSERT INTO PhieuNhap (SupplierName, ImportDate, TotalAmount) VALUES (@SupplierName, @ImportDate, @TotalAmount)", conn);
                     cmd.Parameters.AddWithValue("@SupplierName", import.SupplierName);
-                    cmd.Parameters.AddWithValue("@ImportDate", import.ImportDate ?? DateTime.Now);
+                    cmd.Parameters.AddWithValue("@ImportDate", import.ImportDate ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@TotalAmount", import.TotalAmount);
 
                     cmd.ExecuteNonQuery();
@@ -99,11 +93,10 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi tạo phiếu nhập: " + ex.Message);
+                throw new Exception("Lỗi thêm phiếu nhập: " + ex.Message);
             }
         }
 
-        // Cập nhật phiếu nhập
         public bool UpdateImport(ImportDTO import)
         {
             try
@@ -114,7 +107,7 @@ namespace DAL
                     SqlCommand cmd = new SqlCommand("UPDATE PhieuNhap SET SupplierName = @SupplierName, ImportDate = @ImportDate, TotalAmount = @TotalAmount WHERE ImportID = @ImportID", conn);
                     cmd.Parameters.AddWithValue("@ImportID", import.ImportID);
                     cmd.Parameters.AddWithValue("@SupplierName", import.SupplierName);
-                    cmd.Parameters.AddWithValue("@ImportDate", import.ImportDate ?? DateTime.Now);
+                    cmd.Parameters.AddWithValue("@ImportDate", import.ImportDate ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@TotalAmount", import.TotalAmount);
 
                     cmd.ExecuteNonQuery();
@@ -127,7 +120,6 @@ namespace DAL
             }
         }
 
-        // Xóa phiếu nhập
         public bool DeleteImport(int importID)
         {
             try
@@ -135,9 +127,14 @@ namespace DAL
                 using (SqlConnection conn = dbConnection.GetConnection())
                 {
                     conn.Open();
+                    // Xóa chi tiết phiếu nhập trước
+                    SqlCommand deleteDetails = new SqlCommand("DELETE FROM ChiTietPhieuNhap WHERE ImportID = @ImportID", conn);
+                    deleteDetails.Parameters.AddWithValue("@ImportID", importID);
+                    deleteDetails.ExecuteNonQuery();
+
+                    // Xóa phiếu nhập
                     SqlCommand cmd = new SqlCommand("DELETE FROM PhieuNhap WHERE ImportID = @ImportID", conn);
                     cmd.Parameters.AddWithValue("@ImportID", importID);
-
                     cmd.ExecuteNonQuery();
                     return true;
                 }
@@ -148,8 +145,7 @@ namespace DAL
             }
         }
 
-        // Tìm kiếm phiếu nhập theo nhà cung cấp
-        public List<ImportDTO> SearchImportsBySupplier(string supplierName)
+        public List<ImportDTO> GetImportsBySupplier(string supplierName)
         {
             List<ImportDTO> imports = new List<ImportDTO>();
             try
@@ -157,7 +153,7 @@ namespace DAL
                 using (SqlConnection conn = dbConnection.GetConnection())
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM PhieuNhap WHERE SupplierName LIKE @SupplierName", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM PhieuNhap WHERE SupplierName LIKE @SupplierName ORDER BY ImportID DESC", conn);
                     cmd.Parameters.AddWithValue("@SupplierName", "%" + supplierName + "%");
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -167,7 +163,7 @@ namespace DAL
                         {
                             ImportID = (int)reader["ImportID"],
                             SupplierName = reader["SupplierName"].ToString(),
-                            ImportDate = (DateTime)reader["ImportDate"],
+                            ImportDate = reader["ImportDate"] != DBNull.Value ? (DateTime?)reader["ImportDate"] : null,
                             TotalAmount = (decimal)reader["TotalAmount"]
                         };
                         imports.Add(import);
@@ -177,7 +173,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi tìm kiếm phiếu nhập: " + ex.Message);
+                throw new Exception("Lỗi lấy phiếu nhập theo nhà cung cấp: " + ex.Message);
             }
             return imports;
         }
