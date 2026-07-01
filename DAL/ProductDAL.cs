@@ -1,41 +1,45 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Collections.Generic;
-using DiDongViet_SalesManagement.DTO;
+using DTO;
 
-namespace DiDongViet_SalesManagement.DAL
+namespace DAL
 {
     public class ProductDAL
     {
-        /// <summary>
-        /// Lấy danh sách tất cả sản phẩm
-        /// </summary>
-        public static List<ProductDTO> GetAllProducts()
+        private DatabaseConnection dbConnection = new DatabaseConnection();
+
+        // Lấy tất cả sản phẩm
+        public List<ProductDTO> GetAllProducts()
         {
             List<ProductDTO> products = new List<ProductDTO>();
             try
             {
-                DataTable dt = DatabaseConnection.ExecuteStoredProcedure("sp_GetAllProducts");
-                foreach (DataRow row in dt.Rows)
+                using (SqlConnection conn = dbConnection.GetConnection())
                 {
-                    ProductDTO product = new ProductDTO
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM SanPham", conn);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
                     {
-                        MaSP = Convert.ToInt32(row["MaSP"]),
-                        TenSP = row["TenSP"].ToString(),
-                        TenHang = row["TenHang"].ToString(),
-                        MaHang = Convert.ToInt32(row["MaHang"]),
-                        TenLoai = row["TenLoai"].ToString(),
-                        MaLoai = Convert.ToInt32(row["MaLoai"]),
-                        GiaNhap = Convert.ToDecimal(row["GiaNhap"]),
-                        GiaBan = Convert.ToDecimal(row["GiaBan"]),
-                        SoLuongTon = Convert.ToInt32(row["SoLuongTon"]),
-                        MauSac = row["MauSac"].ToString(),
-                        BaoHanh = row["BaoHanh"] != DBNull.Value ? Convert.ToInt32(row["BaoHanh"]) : (int?)null,
-                        HinhAnh = row["HinhAnh"].ToString(),
-                        TrangThai = Convert.ToBoolean(row["TrangThai"])
-                    };
-                    products.Add(product);
+                        ProductDTO product = new ProductDTO
+                        {
+                            ProductID = (int)reader["ProductID"],
+                            ProductName = reader["ProductName"].ToString(),
+                            BrandID = reader["BrandID"] != DBNull.Value ? (int)reader["BrandID"] : 0,
+                            CategoryID = reader["CategoryID"] != DBNull.Value ? (int)reader["CategoryID"] : 0,
+                            ImportPrice = (decimal)reader["ImportPrice"],
+                            SalePrice = (decimal)reader["SalePrice"],
+                            QuantityInStock = (int)reader["QuantityInStock"],
+                            Color = reader["Color"] != DBNull.Value ? reader["Color"].ToString() : "",
+                            Warranty = reader["Warranty"] != DBNull.Value ? reader["Warranty"].ToString() : "",
+                            ImagePath = reader["ImagePath"] != DBNull.Value ? reader["ImagePath"].ToString() : ""
+                        };
+                        products.Add(product);
+                    }
+                    reader.Close();
                 }
             }
             catch (Exception ex)
@@ -45,24 +49,68 @@ namespace DiDongViet_SalesManagement.DAL
             return products;
         }
 
-        /// <summary>
-        /// Thêm sản phẩm mới
-        /// </summary>
-        public static void InsertProduct(ProductDTO product)
+        // Lấy sản phẩm theo ID
+        public ProductDTO GetProductByID(int productID)
         {
             try
             {
-                SqlParameter[] parameters = new SqlParameter[]
+                using (SqlConnection conn = dbConnection.GetConnection())
                 {
-                    new SqlParameter("@TenSP", product.TenSP),
-                    new SqlParameter("@MaHang", product.MaHang),
-                    new SqlParameter("@MaLoai", product.MaLoai),
-                    new SqlParameter("@GiaNhap", product.GiaNhap),
-                    new SqlParameter("@GiaBan", product.GiaBan),
-                    new SqlParameter("@MauSac", product.MauSac),
-                    new SqlParameter("@BaoHanh", product.BaoHanh ?? (object)DBNull.Value)
-                };
-                DatabaseConnection.ExecuteStoredProcedureNonQuery("sp_InsertProduct", parameters);
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM SanPham WHERE ProductID = @ProductID", conn);
+                    cmd.Parameters.AddWithValue("@ProductID", productID);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        ProductDTO product = new ProductDTO
+                        {
+                            ProductID = (int)reader["ProductID"],
+                            ProductName = reader["ProductName"].ToString(),
+                            BrandID = reader["BrandID"] != DBNull.Value ? (int)reader["BrandID"] : 0,
+                            CategoryID = reader["CategoryID"] != DBNull.Value ? (int)reader["CategoryID"] : 0,
+                            ImportPrice = (decimal)reader["ImportPrice"],
+                            SalePrice = (decimal)reader["SalePrice"],
+                            QuantityInStock = (int)reader["QuantityInStock"],
+                            Color = reader["Color"] != DBNull.Value ? reader["Color"].ToString() : "",
+                            Warranty = reader["Warranty"] != DBNull.Value ? reader["Warranty"].ToString() : "",
+                            ImagePath = reader["ImagePath"] != DBNull.Value ? reader["ImagePath"].ToString() : ""
+                        };
+                        reader.Close();
+                        return product;
+                    }
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi lấy sản phẩm: " + ex.Message);
+            }
+            return null;
+        }
+
+        // Thêm sản phẩm mới
+        public bool AddProduct(ProductDTO product)
+        {
+            try
+            {
+                using (SqlConnection conn = dbConnection.GetConnection())
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("INSERT INTO SanPham (ProductName, BrandID, CategoryID, ImportPrice, SalePrice, QuantityInStock, Color, Warranty, ImagePath) VALUES (@ProductName, @BrandID, @CategoryID, @ImportPrice, @SalePrice, @QuantityInStock, @Color, @Warranty, @ImagePath)", conn);
+                    cmd.Parameters.AddWithValue("@ProductName", product.ProductName);
+                    cmd.Parameters.AddWithValue("@BrandID", product.BrandID);
+                    cmd.Parameters.AddWithValue("@CategoryID", product.CategoryID);
+                    cmd.Parameters.AddWithValue("@ImportPrice", product.ImportPrice);
+                    cmd.Parameters.AddWithValue("@SalePrice", product.SalePrice);
+                    cmd.Parameters.AddWithValue("@QuantityInStock", product.QuantityInStock);
+                    cmd.Parameters.AddWithValue("@Color", product.Color ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Warranty", product.Warranty ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ImagePath", product.ImagePath ?? (object)DBNull.Value);
+
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
             }
             catch (Exception ex)
             {
@@ -70,25 +118,29 @@ namespace DiDongViet_SalesManagement.DAL
             }
         }
 
-        /// <summary>
-        /// Cập nhật sản phẩm
-        /// </summary>
-        public static void UpdateProduct(ProductDTO product)
+        // Cập nhật sản phẩm
+        public bool UpdateProduct(ProductDTO product)
         {
             try
             {
-                SqlParameter[] parameters = new SqlParameter[]
+                using (SqlConnection conn = dbConnection.GetConnection())
                 {
-                    new SqlParameter("@MaSP", product.MaSP),
-                    new SqlParameter("@TenSP", product.TenSP),
-                    new SqlParameter("@MaHang", product.MaHang),
-                    new SqlParameter("@MaLoai", product.MaLoai),
-                    new SqlParameter("@GiaNhap", product.GiaNhap),
-                    new SqlParameter("@GiaBan", product.GiaBan),
-                    new SqlParameter("@MauSac", product.MauSac),
-                    new SqlParameter("@BaoHanh", product.BaoHanh ?? (object)DBNull.Value)
-                };
-                DatabaseConnection.ExecuteStoredProcedureNonQuery("sp_UpdateProduct", parameters);
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("UPDATE SanPham SET ProductName = @ProductName, BrandID = @BrandID, CategoryID = @CategoryID, ImportPrice = @ImportPrice, SalePrice = @SalePrice, QuantityInStock = @QuantityInStock, Color = @Color, Warranty = @Warranty, ImagePath = @ImagePath WHERE ProductID = @ProductID", conn);
+                    cmd.Parameters.AddWithValue("@ProductID", product.ProductID);
+                    cmd.Parameters.AddWithValue("@ProductName", product.ProductName);
+                    cmd.Parameters.AddWithValue("@BrandID", product.BrandID);
+                    cmd.Parameters.AddWithValue("@CategoryID", product.CategoryID);
+                    cmd.Parameters.AddWithValue("@ImportPrice", product.ImportPrice);
+                    cmd.Parameters.AddWithValue("@SalePrice", product.SalePrice);
+                    cmd.Parameters.AddWithValue("@QuantityInStock", product.QuantityInStock);
+                    cmd.Parameters.AddWithValue("@Color", product.Color ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Warranty", product.Warranty ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ImagePath", product.ImagePath ?? (object)DBNull.Value);
+
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
             }
             catch (Exception ex)
             {
@@ -96,23 +148,65 @@ namespace DiDongViet_SalesManagement.DAL
             }
         }
 
-        /// <summary>
-        /// Xóa sản phẩm (cập nhật trạng thái)
-        /// </summary>
-        public static void DeleteProduct(int maSP)
+        // Xóa sản phẩm
+        public bool DeleteProduct(int productID)
         {
             try
             {
-                SqlParameter[] parameters = new SqlParameter[]
+                using (SqlConnection conn = dbConnection.GetConnection())
                 {
-                    new SqlParameter("@MaSP", maSP)
-                };
-                DatabaseConnection.ExecuteStoredProcedureNonQuery("sp_DeleteProduct", parameters);
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("DELETE FROM SanPham WHERE ProductID = @ProductID", conn);
+                    cmd.Parameters.AddWithValue("@ProductID", productID);
+
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
             }
             catch (Exception ex)
             {
                 throw new Exception("Lỗi xóa sản phẩm: " + ex.Message);
             }
+        }
+
+        // Tìm kiếm sản phẩm
+        public List<ProductDTO> SearchProducts(string keyword)
+        {
+            List<ProductDTO> products = new List<ProductDTO>();
+            try
+            {
+                using (SqlConnection conn = dbConnection.GetConnection())
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM SanPham WHERE ProductName LIKE @Keyword OR Color LIKE @Keyword", conn);
+                    cmd.Parameters.AddWithValue("@Keyword", "%" + keyword + "%");
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ProductDTO product = new ProductDTO
+                        {
+                            ProductID = (int)reader["ProductID"],
+                            ProductName = reader["ProductName"].ToString(),
+                            BrandID = reader["BrandID"] != DBNull.Value ? (int)reader["BrandID"] : 0,
+                            CategoryID = reader["CategoryID"] != DBNull.Value ? (int)reader["CategoryID"] : 0,
+                            ImportPrice = (decimal)reader["ImportPrice"],
+                            SalePrice = (decimal)reader["SalePrice"],
+                            QuantityInStock = (int)reader["QuantityInStock"],
+                            Color = reader["Color"] != DBNull.Value ? reader["Color"].ToString() : "",
+                            Warranty = reader["Warranty"] != DBNull.Value ? reader["Warranty"].ToString() : "",
+                            ImagePath = reader["ImagePath"] != DBNull.Value ? reader["ImagePath"].ToString() : ""
+                        };
+                        products.Add(product);
+                    }
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi tìm kiếm sản phẩm: " + ex.Message);
+            }
+            return products;
         }
     }
 }
