@@ -1,185 +1,194 @@
-# Hệ Thống Quản Lý Bán Hàng Di Động Việt
+# Di Động Việt - Hệ thống Quản lý Bán hàng
 
-## 📱 Giới Thiệu
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![.NET Framework](https://img.shields.io/badge/.NET-v4.7.2-blue.svg)
+![Status](https://img.shields.io/badge/status-Development-yellow.svg)
 
-Hệ thống thông tin quản lý bán hàng cho chuỗi cửa hàng bán lẻ điện thoại di động **Di Động Việt**, phục vụ quản lý sản phẩm, nhân viên, khách hàng, bán hàng, nhập hàng, kho và báo cáo thống kê.
+## 📱 Giới thiệu
 
-## 🛠️ Công Nghệ Sử Dụng
+**Di Động Việt** là ứng dụng quản lý bán hàng di động chuyên nghiệp, được xây dựng bằng **C# Windows Forms**. Ứng dụng cung cấp các tính năng toàn diện cho quản lý sản phẩm, bán hàng, nhập hàng và báo cáo thống kê.
 
-- **Ngôn ngữ:** C# (.NET Framework)
-- **Giao diện:** Windows Forms (WinForms)
-- **IDE:** Visual Studio 2022
-- **Cơ sở dữ liệu:** Microsoft SQL Server
-- **Kiến trúc:** 3-Tier (Presentation, Business Logic, Data Access)
+## ✨ Tính năng chính
 
-## 📋 Chức Năng Chính
+### 1️⃣ Quản lý Sản phẩm
+- ✅ Thêm/sửa/xóa sản phẩm
+- ✅ Quản lý giá nhập/bán
+- ✅ Quản lý tồn kho
+- ✅ Hỗ trợ hình ảnh sản phẩm
+- ✅ Tìm kiếm nâng cao
 
-### 1. Đăng nhập & Phân quyền
-- Xác thực người dùng (Username/Password)
-- Phân quyền: Admin và Nhân viên bán hàng
-- Mã hóa mật khẩu
+### 2️⃣ Quản lý Hóa đơn
+- ✅ Tạo hóa đơn bán hàng
+- ✅ Quản lý chi tiết hóa đơn
+- ✅ Tính toán tự động thành tiền
+- ✅ Hỗ trợ giảm giá
+- ✅ Lịch sử hóa đơn
 
-### 2. Dashboard
-- Thống kê tổng quát (sản phẩm, tồn kho, doanh thu hôm nay)
-- Giao diện trực quan với các thẻ thông tin
-- Hiển thị tên người dùng đang đăng nhập
+### 3️⃣ Quản lý Nhập hàng
+- ✅ Tạo phiếu nhập từ nhà cung cấp
+- ✅ Quản lý chi tiết nhập hàng
+- ✅ Theo dõi giá nhập
+- ✅ Lịch sử nhập hàng
 
-### 3. Quản lý Sản phẩm
-- Thêm, sửa, xóa, tìm kiếm sản phẩm
-- Quản lý thông tin: mã SP, tên, hãng, loại, giá, tồn kho, màu sắc, bảo hành
-- Lọc theo hãng, loại, khoảng giá
+### 4️⃣ Báo cáo & Thống kê
+- ✅ Doanh thu theo ngày/tháng/năm
+- ✅ Sản phẩm bán chạy (Top 10)
+- ✅ Báo cáo tồn kho
+- ✅ **Xuất PDF** 📄
+- ✅ **Xuất Excel** 📊
 
-### 4. Quản lý Nhân viên
-- Thêm, sửa, xóa, tìm kiếm nhân viên
-- Quản lý thông tin cá nhân, chức vụ, ngày vào làm
+### 5️⃣ Xác thực người dùng
+- ✅ Đăng nhập/Đăng xuất
+- ✅ Quản lý phiên làm việc
 
-### 5. Quản lý Khách hàng
-- Thêm, sửa, xóa, tìm kiếm khách hàng
-- Tự động tính tổng chi tiêu
-
-### 6. Bán hàng (Hóa đơn)
-- Lập hóa đơn bán hàng
-- Chọn khách hàng, sản phẩm, tính tổng tiền
-- In hóa đơn
-- Cập nhật tồn kho tự động
-
-### 7. Nhập hàng (Phiếu nhập)
-- Lập phiếu nhập hàng
-- Quản lý nhà cung cấp, sản phẩm, số lượng
-- Tự động cập nhật tồn kho
-
-### 8. Quản lý Kho
-- Xem danh sách tồn kho
-- Cảnh báo sản phẩm sắp hết hàng
-- Lịch sử nhập/xuất kho
-
-### 9. Báo cáo & Thống kê
-- Báo cáo doanh thu theo ngày/tháng/năm
-- Báo cáo sản phẩm bán chạy
-- Báo cáo tồn kho
-
-## 📁 Cấu Trúc Project
+## 🏗️ Kiến trúc ứng dụng
 
 ```
 DiDongViet-SalesManagement/
-├── Database/
-│   ├── CreateDB.sql              # Script tạo database
-│   ├── InsertData.sql            # Script dữ liệu mẫu
-│   └── StoredProcedure.sql       # Script Stored Procedures
-├── GUI/                          # Các Form giao diện
-│   ├── frmLogin.cs              # Form đăng nhập
-│   ├── frmMainDashboard.cs      # Form dashboard chính
-│   ├── frmProduct.cs            # Quản lý sản phẩm
-│   ├── frmEmployee.cs           # Quản lý nhân viên
-│   ├── frmCustomer.cs           # Quản lý khách hàng
-│   ├── frmInvoice.cs            # Quản lý hóa đơn
-│   ├── frmImport.cs             # Quản lý phiếu nhập
-│   ├── frmWarehouse.cs          # Quản lý kho
-│   └── frmReport.cs             # Báo cáo thống kê
-├── BLL/                          # Business Logic Layer
-│   ├── ProductBLL.cs
-│   ├── EmployeeBLL.cs
-│   ├── CustomerBLL.cs
+├── GUI/                    # Giao diện người dùng (Windows Forms)
+│   ├── frmLogin.cs        # Form đăng nhập
+│   ├── frmProduct.cs      # Quản lý sản phẩm
+│   ├── frmInvoice.cs      # Quản lý hóa đơn
+│   ├── frmImport.cs       # Quản lý nhập hàng
+│   └── frmReport.cs       # Báo cáo & Thống kê
+├── BLL/                    # Business Logic Layer (Logic nghiệp vụ)
 │   ├── InvoiceBLL.cs
-│   └── ...
-├── DAL/                          # Data Access Layer
+│   ├── ImportBLL.cs
+│   └── ProductBLL.cs
+├── DAL/                    # Data Access Layer (Truy cập dữ liệu)
 │   ├── DatabaseConnection.cs
+│   ├── InvoiceDAL.cs
+│   ├── ImportDAL.cs
 │   ├── ProductDAL.cs
-│   ├── EmployeeDAL.cs
-│   └── ...
-├── DTO/                          # Data Transfer Objects
-│   ├── ProductDTO.cs
-│   ├── EmployeeDTO.cs
-│   ├── CustomerDTO.cs
-│   └── ...
-├── Resources/                    # Hình ảnh, icon
-│   └── Images/
-└── DiDongViet-SalesManagement.sln
+│   └── SupplierDAL.cs
+├── DTO/                    # Data Transfer Object (Đối tượng truyền dữ liệu)
+│   ├── InvoiceDTO.cs
+│   ├── ImportDTO.cs
+│   └── ProductDTO.cs
+├── Resources/              # Tài nguyên
+│   └── ProductImages/      # Ảnh sản phẩm
+└── App.config             # Cấu hình ứng dụng
 ```
 
-## 🚀 Hướng Dẫn Cài Đặt
+## 🛠️ Công nghệ sử dụng
 
-### Yêu Cầu
-- Visual Studio 2022 (với .NET Desktop Development)
-- SQL Server 2019 hoặc 2022
-- .NET Framework 4.8+
+- **Ngôn ngữ**: C# (.NET Framework 4.7.2)
+- **Giao diện**: Windows Forms
+- **Cơ sở dữ liệu**: SQL Server
+- **Thư viện xuất file**:
+  - **iTextSharp** - Xuất PDF
+  - **EPPlus** - Xuất Excel
 
-### Các Bước
+## 📋 Yêu cầu hệ thống
 
-#### 1. Tạo Database
-```sql
--- Mở SQL Server Management Studio (SSMS)
--- Chạy script CreateDB.sql để tạo database
--- Chạy script InsertData.sql để insert dữ liệu mẫu
--- Chạy script StoredProcedure.sql để tạo stored procedures
+- Windows 7 trở lên
+- .NET Framework 4.7.2
+- SQL Server 2012 trở lên (hoặc SQL Server Express)
+- Visual Studio 2019+ (để phát triển)
+
+## 🚀 Hướng dẫn cài đặt
+
+### 1️⃣ Clone repository
+```bash
+git clone https://github.com/charm0909/DiDongViet-SalesManagement.git
+cd DiDongViet-SalesManagement
 ```
 
-#### 2. Cấu Hình Kết Nối Database
-Sửa file `DatabaseConnection.cs` trong DAL:
-```csharp
-private static string connectionString = 
-    @"Server=YOUR_SERVER_NAME;Database=DiDongVietDB;User Id=sa;Password=YOUR_PASSWORD;";
+### 2️⃣ Cài đặt NuGet packages
+
+Mở **Package Manager Console** trong Visual Studio và chạy:
+
+```powershell
+Install-Package iTextSharp
+Install-Package EPPlus
 ```
 
-#### 3. Mở Project
-- Mở file `.sln` trong Visual Studio 2022
-- Restore NuGet packages (nếu có)
-- Build solution (Ctrl + Shift + B)
+### 3️⃣ Cấu hình cơ sở dữ liệu
 
-#### 4. Chạy Ứng Dụng
-- Nhấn F5 hoặc Debug > Start Debugging
-- Đăng nhập với tài khoản: `admin` / `admin123`
+Chỉnh sửa file `App.config`:
 
-## 👤 Tài Khoản Demo
+```xml
+<add key="ConnectionString" value="Server=localhost;Database=DiDongVietDB;Integrated Security=true;" />
+```
 
-| Tên Đăng Nhập | Mật Khẩu | Quyền |
-|---|---|---|
-| admin | admin123 | Admin |
-| staff1 | staff123 | Nhân viên |
-| staff2 | staff123 | Nhân viên |
-| staff3 | staff123 | Nhân viên |
-| staff4 | staff123 | Nhân viên |
+**Hoặc dùng SQL Authentication:**
+```xml
+<add key="ConnectionString" value="Server=localhost;Database=DiDongVietDB;User Id=sa;Password=your_password;" />
+```
 
-## 🎨 Giao Diện
+### 4️⃣ Tạo database
 
-- **Màu chủ đạo:** Đỏ (Di Động Việt), Trắng, Xám đậm
-- **Font:** Segoe UI, Arial (hỗ trợ tiếng Việt có dấu)
-- **Phong cách:** Modern, trực quan, responsive
-- **Icon:** Font Awesome / Material Design Icons
+Chạy file SQL script để tạo cơ sở dữ liệu và bảng (sẽ được cung cấp riêng)
 
-## 📊 Dữ Liệu Mẫu
+### 5️⃣ Chạy ứng dụng
 
-- **20 Sản phẩm**: iPhone, Samsung, Xiaomi, Oppo, Vivo
-- **20 Nhân viên**: Quản trị viên + Nhân viên bán hàng
-- **20 Khách hàng**: Khách hàng mẫu
-- **5 Hãng**: Apple, Samsung, Xiaomi, Oppo, Vivo
-- **5 Loại**: Điện thoại, Tai nghe, Sạc, Ốp lưng, Pin dự phòng
-- **5 Nhà cung cấp**: NCC mẫu
-- **5 Tài khoản**: Admin + 4 Nhân viên
+Mở project trong Visual Studio → Nhấn **F5** hoặc **Run**
 
-## 🔒 Bảo Mật
+## 📊 Cấu trúc Database
 
-- Mã hóa mật khẩu
-- Xác thực người dùng
-- Phân quyền truy cập
-- Validate dữ liệu đầu vào
-- Xử lý lỗi toàn diện
+### Các bảng chính:
 
-## 📝 Ghi Chú
+| Bảng | Mô tả |
+|------|-------|
+| `HoaDon` | Hóa đơn bán hàng |
+| `ChiTietHoaDon` | Chi tiết các sản phẩm trong hóa đơn |
+| `PhieuNhap` | Phiếu nhập hàng từ nhà cung cấp |
+| `ChiTietPhieuNhap` | Chi tiết sản phẩm nhập |
+| `SanPham` | Danh sách sản phẩm |
+| `NhaCungCap` | Danh sách nhà cung cấp |
 
-- Hỗ trợ tiếng Việt có dấu
-- Cân nhắc tối ưu hóa hiệu suất
-- Dữ liệu nhất quán giữa các bảng
-- Code tuân thủ chuẩn 3-Tier Architecture
+## 📖 Hướng dẫn sử dụng
 
-## 👨‍💻 Nhà Phát Triển
+### Đăng nhập
+1. Nhập tên đăng nhập và mật khẩu
+2. Nhấn **Đăng nhập**
 
-**charm0909** - Đề tài Thực hành Nghề Nghiệp (THNN)
+### Quản lý sản phẩm
+1. Mở menu **Sản phẩm**
+2. **Thêm**: Nhập thông tin sản phẩm → Nhấn **Thêm**
+3. **Sửa**: Chọn sản phẩm từ danh sách → Sửa thông tin → Nhấn **Cập nhật**
+4. **Xóa**: Chọn sản phẩm → Nhấn **Xóa** → Xác nhận
+5. **Tìm kiếm**: Nhập từ khóa → Nhấn **Tìm**
 
-## 📄 License
+### Tạo hóa đơn bán hàng
+1. Mở menu **Hóa đơn**
+2. Nhấn **Thêm hóa đơn mới**
+3. Chọn khách hàng
+4. Thêm sản phẩm vào chi tiết hóa đơn
+5. Hệ thống tự động tính tổng tiền
+6. Nhấn **Lưu**
 
-MIT License
+### Xuất báo cáo
+1. Mở menu **Báo cáo**
+2. Chọn loại báo cáo (Doanh thu, Sản phẩm bán chạy, Tồn kho...)
+3. Nhấn **Xem báo cáo**
+4. **Xuất PDF** hoặc **Xuất Excel**
+5. Chọn vị trí lưu file
+
+## 🔐 Bảo mật
+
+- ✅ Sử dụng **Parameterized Queries** để chống SQL Injection
+- ✅ Xác thực người dùng bắt buộc
+- ✅ Kiểm tra quyền hạn
+
+## 🐛 Báo cáo lỗi
+
+Nếu phát hiện lỗi, vui lòng tạo **Issue** trên GitHub hoặc liên hệ: **charm0909@example.com**
+
+## 📝 License
+
+Dự án này được phát hành dưới giấy phép **MIT**.
+
+## 👥 Tác giả
+
+- **vtttram0909-art** (charm0909)
+- Phát triển bởi Di Động Việt Team
+
+## 🙏 Cảm ơn
+
+Cảm ơn tất cả những người đóng góp vào dự án này!
 
 ---
 
-**Ngày cập nhật:** Tháng 7, 2026
+**Phiên bản**: v1.0.0  
+**Cập nhật lần cuối**: 01/07/2026
