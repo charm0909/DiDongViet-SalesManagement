@@ -3,6 +3,10 @@ using System.Windows.Forms;
 using BLL;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using OfficeOpenXml;
 
 namespace DiDongViet_SalesManagement.GUI
 {
@@ -187,12 +191,21 @@ namespace DiDongViet_SalesManagement.GUI
         {
             try
             {
+                if (dgvReport.DataSource == null || dgvReport.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu để xuất!");
+                    return;
+                }
+
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
                 saveFileDialog.Filter = "PDF Files|*.pdf";
+                saveFileDialog.DefaultExt = "pdf";
+                saveFileDialog.FileName = $"BaoCao_{DateTime.Now:yyyyMMdd_HHmmss}";
+
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Xuất dữ liệu ra PDF (sử dụng thư viện bên thứ ba)
-                    MessageBox.Show("Xuất PDF thành công!");
+                    ExportDataGridViewToPdf(dgvReport, saveFileDialog.FileName, lblReportTitle.Text);
+                    MessageBox.Show("Xuất PDF thành công tại: " + saveFileDialog.FileName);
                 }
             }
             catch (Exception ex)
@@ -205,17 +218,141 @@ namespace DiDongViet_SalesManagement.GUI
         {
             try
             {
+                if (dgvReport.DataSource == null || dgvReport.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu để xuất!");
+                    return;
+                }
+
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
                 saveFileDialog.Filter = "Excel Files|*.xlsx";
+                saveFileDialog.DefaultExt = "xlsx";
+                saveFileDialog.FileName = $"BaoCao_{DateTime.Now:yyyyMMdd_HHmmss}";
+
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Xuất dữ liệu ra Excel (sử dụng thư viện bên thứ ba)
-                    MessageBox.Show("Xuất Excel thành công!");
+                    ExportDataGridViewToExcel(dgvReport, saveFileDialog.FileName, lblReportTitle.Text);
+                    MessageBox.Show("Xuất Excel thành công tại: " + saveFileDialog.FileName);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi xuất Excel: " + ex.Message);
+            }
+        }
+
+        // Xuất PDF
+        private void ExportDataGridViewToPdf(DataGridView dgv, string filePath, string title)
+        {
+            try
+            {
+                Document doc = new Document();
+                PdfWriter.GetInstance(doc, new FileStream(filePath, FileMode.Create));
+                doc.Open();
+
+                // Tiêu đề
+                Paragraph titleParagraph = new Paragraph(title, FontFactory.GetFont("Arial", 16, Font.BOLD));
+                titleParagraph.Alignment = Element.ALIGN_CENTER;
+                doc.Add(titleParagraph);
+
+                // Ngày tạo
+                Paragraph dateParagraph = new Paragraph($"Ngày tạo: {DateTime.Now:dd/MM/yyyy HH:mm:ss}", FontFactory.GetFont("Arial", 10));
+                dateParagraph.Alignment = Element.ALIGN_RIGHT;
+                doc.Add(dateParagraph);
+
+                doc.Add(new Paragraph(" ")); // Khoảng trắng
+
+                // Bảng
+                PdfPTable table = new PdfPTable(dgv.Columns.Count);
+                table.WidthPercentage = 100;
+
+                // Header
+                foreach (DataGridViewColumn column in dgv.Columns)
+                {
+                    PdfPCell cell = new PdfPCell(new Phrase(column.HeaderText, FontFactory.GetFont("Arial", 10, Font.BOLD)));
+                    cell.BackgroundColor = new iTextSharp.text.BaseColor(220, 53, 69); // Màu đỏ Di Động Việt
+                    cell.Padding = 5;
+                    table.AddCell(cell);
+                }
+
+                // Dữ liệu
+                foreach (DataGridViewRow row in dgv.Rows)
+                {
+                    foreach (DataGridViewCell cell in row.Cells)
+                    {
+                        PdfPCell pdfCell = new PdfPCell(new Phrase(cell.Value?.ToString() ?? "", FontFactory.GetFont("Arial", 9)));
+                        pdfCell.Padding = 5;
+                        table.AddCell(pdfCell);
+                    }
+                }
+
+                doc.Add(table);
+                doc.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi xuất PDF: " + ex.Message);
+            }
+        }
+
+        // Xuất Excel
+        private void ExportDataGridViewToExcel(DataGridView dgv, string filePath, string title)
+        {
+            try
+            {
+                // Đặt license context cho EPPlus
+                EPPlus.ExcelPackage.LicenseContext = EPPlus.LicenseContext.NonCommercial;
+
+                using (var package = new EPPlus.ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Report");
+
+                    // Tiêu đề
+                    worksheet.Cells[1, 1].Value = title;
+                    worksheet.Cells[1, 1].Style.Font.Bold = true;
+                    worksheet.Cells[1, 1].Style.Font.Size = 14;
+                    worksheet.Cells[1, 1].Style.Font.Color.SetColor(System.Drawing.Color.FromArgb(220, 53, 69));
+
+                    // Ngày tạo
+                    worksheet.Cells[2, 1].Value = $"Ngày tạo: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+                    worksheet.Cells[2, 1].Style.Font.Size = 10;
+
+                    // Header
+                    int colIndex = 1;
+                    foreach (DataGridViewColumn column in dgv.Columns)
+                    {
+                        worksheet.Cells[4, colIndex].Value = column.HeaderText;
+                        worksheet.Cells[4, colIndex].Style.Font.Bold = true;
+                        worksheet.Cells[4, colIndex].Style.Fill.PatternType = EPPlus.Style.ExcelFillStyle.Solid;
+                        worksheet.Cells[4, colIndex].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(220, 53, 69));
+                        worksheet.Cells[4, colIndex].Style.Font.Color.SetColor(System.Drawing.Color.White);
+                        colIndex++;
+                    }
+
+                    // Dữ liệu
+                    int rowIndex = 5;
+                    foreach (DataGridViewRow row in dgv.Rows)
+                    {
+                        colIndex = 1;
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            worksheet.Cells[rowIndex, colIndex].Value = cell.Value;
+                            colIndex++;
+                        }
+                        rowIndex++;
+                    }
+
+                    // Tự động điều chỉnh độ rộng cột
+                    worksheet.Cells.AutoFitColumns();
+
+                    // Lưu file
+                    FileInfo file = new FileInfo(filePath);
+                    package.SaveAs(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi xuất Excel: " + ex.Message);
             }
         }
     }
