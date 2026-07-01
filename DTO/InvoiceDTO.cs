@@ -1,33 +1,26 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DiDongViet_SalesManagement.DTO
+namespace DTO
 {
     public class InvoiceDTO
     {
-        public int MaHD { get; set; }
-        public int MaKH { get; set; }
-        public string TenKH { get; set; }
-        public int MaNV { get; set; }
-        public string TenNV { get; set; }
-        public DateTime NgayLap { get; set; }
-        public decimal TongTien { get; set; }
-        public decimal GiamGia { get; set; }
-        public decimal ThanhTien { get; set; }
-        public string GhiChu { get; set; }
-        public List<InvoiceDetailDTO> ChiTiet { get; set; }
+        public int InvoiceID { get; set; }
+        public int CustomerID { get; set; }
+        public DateTime? InvoiceDate { get; set; }
+        public decimal TotalAmount { get; set; }
+        public decimal Discount { get; set; }
+        public List<InvoiceDetailDTO> Details { get; set; } = new List<InvoiceDetailDTO>();
     }
 
     public class InvoiceDetailDTO
     {
-        public int MaCTHD { get; set; }
-        public int MaSP { get; set; }
-        public string TenSP { get; set; }
-        public int SoLuong { get; set; }
-        public decimal DonGia { get; set; }
-        public decimal ThanhTien { get; set; }
+        public int InvoiceDetailID { get; set; }
+        public int InvoiceID { get; set; }
+        public int ProductID { get; set; }
+        public string ProductName { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public decimal Total { get; set; }
     }
 }
