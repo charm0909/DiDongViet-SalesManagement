@@ -8,29 +8,22 @@ namespace DiDongViet_SalesManagement.BLL
     {
         private DAL.SupplierDAL supplierDAL = new DAL.SupplierDAL();
 
-        // Lấy danh sách tất cả nhà cung cấp
         public List<SupplierDTO> GetAllSuppliers()
         {
             return supplierDAL.GetAllSuppliers();
         }
 
-        // Lấy nhà cung cấp theo ID
         public SupplierDTO GetSupplierByID(int supplierID)
         {
             return supplierDAL.GetSupplierByID(supplierID);
         }
 
-        // Thêm nhà cung cấp mới
         public bool AddSupplier(SupplierDTO supplier)
         {
-            // Validate dữ liệu
             if (string.IsNullOrEmpty(supplier.SupplierName))
                 throw new Exception("Tên nhà cung cấp không được rỗng");
 
-            if (string.IsNullOrEmpty(supplier.Phone))
-                throw new Exception("Số điện thoại không được rỗng");
-
-            if (!IsValidPhone(supplier.Phone))
+            if (!string.IsNullOrEmpty(supplier.Phone) && !IsValidPhone(supplier.Phone))
                 throw new Exception("Số điện thoại không hợp lệ");
 
             if (!string.IsNullOrEmpty(supplier.Email) && !IsValidEmail(supplier.Email))
@@ -39,17 +32,12 @@ namespace DiDongViet_SalesManagement.BLL
             return supplierDAL.AddSupplier(supplier);
         }
 
-        // Cập nhật nhà cung cấp
         public bool UpdateSupplier(SupplierDTO supplier)
         {
-            // Validate dữ liệu
             if (string.IsNullOrEmpty(supplier.SupplierName))
                 throw new Exception("Tên nhà cung cấp không được rỗng");
 
-            if (string.IsNullOrEmpty(supplier.Phone))
-                throw new Exception("Số điện thoại không được rỗng");
-
-            if (!IsValidPhone(supplier.Phone))
+            if (!string.IsNullOrEmpty(supplier.Phone) && !IsValidPhone(supplier.Phone))
                 throw new Exception("Số điện thoại không hợp lệ");
 
             if (!string.IsNullOrEmpty(supplier.Email) && !IsValidEmail(supplier.Email))
@@ -58,13 +46,11 @@ namespace DiDongViet_SalesManagement.BLL
             return supplierDAL.UpdateSupplier(supplier);
         }
 
-        // Xóa nhà cung cấp
         public bool DeleteSupplier(int supplierID)
         {
             return supplierDAL.DeleteSupplier(supplierID);
         }
 
-        // Tìm kiếm nhà cung cấp
         public List<SupplierDTO> SearchSuppliers(string keyword)
         {
             if (string.IsNullOrEmpty(keyword))
@@ -73,7 +59,6 @@ namespace DiDongViet_SalesManagement.BLL
             return supplierDAL.SearchSuppliers(keyword);
         }
 
-        // Hàm validate email
         private bool IsValidEmail(string email)
         {
             try
@@ -87,7 +72,6 @@ namespace DiDongViet_SalesManagement.BLL
             }
         }
 
-        // Hàm validate số điện thoại
         private bool IsValidPhone(string phone)
         {
             if (string.IsNullOrEmpty(phone)) return false;
