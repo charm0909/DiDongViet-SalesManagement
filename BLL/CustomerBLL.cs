@@ -1,87 +1,74 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DiDongViet_SalesManagement.DTO;
-using DiDongViet_SalesManagement.DAL;
 
 namespace DiDongViet_SalesManagement.BLL
 {
     public class CustomerBLL
     {
-        /// <summary>
-        /// Lấy danh sách tất cả khách hàng
-        /// </summary>
-        public static List<CustomerDTO> GetAllCustomers()
+        private DAL.CustomerDAL customerDAL = new DAL.CustomerDAL();
+
+        // Lấy danh sách tất cả khách hàng
+        public List<CustomerDTO> GetAllCustomers()
         {
-            try
-            {
-                return CustomerDAL.GetAllCustomers();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi lấy danh sách khách hàng: " + ex.Message);
-            }
+            return customerDAL.GetAllCustomers();
         }
 
-        /// <summary>
-        /// Thêm khách hàng mới với validate
-        /// </summary>
-        public static bool InsertCustomer(CustomerDTO customer)
+        // Lấy khách hàng theo ID
+        public CustomerDTO GetCustomerByID(int customerID)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(customer.HoTen))
-                    throw new Exception("Tên khách hàng không được để trống!");
-
-                if (string.IsNullOrWhiteSpace(customer.DienThoai))
-                    throw new Exception("Điện thoại không được để trống!");
-
-                if (!IsValidPhoneNumber(customer.DienThoai))
-                    throw new Exception("Số điện thoại không hợp lệ!");
-
-                if (!string.IsNullOrWhiteSpace(customer.Email) && !IsValidEmail(customer.Email))
-                    throw new Exception("Email không hợp lệ!");
-
-                CustomerDAL.InsertCustomer(customer);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi thêm khách hàng: " + ex.Message);
-            }
+            return customerDAL.GetCustomerByID(customerID);
         }
 
-        /// <summary>
-        /// Tìm kiếm khách hàng theo tên hoặc số điện thoại
-        /// </summary>
-        public static List<CustomerDTO> SearchCustomer(string keyword)
+        // Thêm khách hàng mới
+        public bool AddCustomer(CustomerDTO customer)
         {
-            try
-            {
-                var allCustomers = CustomerDAL.GetAllCustomers();
-                return allCustomers.Where(c => c.HoTen.ToLower().Contains(keyword.ToLower()) ||
-                                              c.DienThoai.Contains(keyword)).ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi tìm kiếm khách hàng: " + ex.Message);
-            }
+            // Validate dữ liệu
+            if (string.IsNullOrEmpty(customer.HoTen))
+                throw new Exception("Tên khách hàng không được rỗng");
+
+            if (!string.IsNullOrEmpty(customer.SoDienThoai) && !IsValidPhone(customer.SoDienThoai))
+                throw new Exception("Số điện thoại không hợp lệ");
+
+            if (!string.IsNullOrEmpty(customer.Email) && !IsValidEmail(customer.Email))
+                throw new Exception("Email không hợp lệ");
+
+            return customerDAL.AddCustomer(customer);
         }
 
-        /// <summary>
-        /// Kiểm tra số điện thoại hợp lệ
-        /// </summary>
-        private static bool IsValidPhoneNumber(string phone)
+        // Cập nhật khách hàng
+        public bool UpdateCustomer(CustomerDTO customer)
         {
-            return phone.Length >= 10 && phone.All(char.IsDigit);
+            // Validate dữ liệu
+            if (string.IsNullOrEmpty(customer.HoTen))
+                throw new Exception("Tên khách hàng không được rỗng");
+
+            if (!string.IsNullOrEmpty(customer.SoDienThoai) && !IsValidPhone(customer.SoDienThoai))
+                throw new Exception("Số điện thoại không hợp lệ");
+
+            if (!string.IsNullOrEmpty(customer.Email) && !IsValidEmail(customer.Email))
+                throw new Exception("Email không hợp lệ");
+
+            return customerDAL.UpdateCustomer(customer);
         }
 
-        /// <summary>
-        /// Kiểm tra email hợp lệ
-        /// </summary>
-        private static bool IsValidEmail(string email)
+        // Xóa khách hàng
+        public bool DeleteCustomer(int customerID)
+        {
+            return customerDAL.DeleteCustomer(customerID);
+        }
+
+        // Tìm kiếm khách hàng
+        public List<CustomerDTO> SearchCustomers(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword))
+                return GetAllCustomers();
+
+            return customerDAL.SearchCustomers(keyword);
+        }
+
+        // Hàm validate email
+        private bool IsValidEmail(string email)
         {
             try
             {
@@ -92,6 +79,13 @@ namespace DiDongViet_SalesManagement.BLL
             {
                 return false;
             }
+        }
+
+        // Hàm validate số điện thoại
+        private bool IsValidPhone(string phone)
+        {
+            if (string.IsNullOrEmpty(phone)) return false;
+            return System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[0-9]{10,11}$");
         }
     }
 }

@@ -1,105 +1,80 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DiDongViet_SalesManagement.DTO;
-using DiDongViet_SalesManagement.DAL;
 
 namespace DiDongViet_SalesManagement.BLL
 {
     public class EmployeeBLL
     {
-        /// <summary>
-        /// Lấy danh sách tất cả nhân viên
-        /// </summary>
-        public static List<EmployeeDTO> GetAllEmployees()
+        private DAL.EmployeeDAL employeeDAL = new DAL.EmployeeDAL();
+
+        // Lấy danh sách tất cả nhân viên
+        public List<EmployeeDTO> GetAllEmployees()
         {
-            try
-            {
-                return EmployeeDAL.GetAllEmployees();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi lấy danh sách nhân viên: " + ex.Message);
-            }
+            return employeeDAL.GetAllEmployees();
         }
 
-        /// <summary>
-        /// Thêm nhân viên mới với validate
-        /// </summary>
-        public static bool InsertEmployee(EmployeeDTO employee)
+        // Lấy nhân viên theo ID
+        public EmployeeDTO GetEmployeeByID(int employeeID)
         {
-            try
-            {
-                // Validate dữ liệu
-                if (string.IsNullOrWhiteSpace(employee.HoTen))
-                    throw new Exception("Họ tên nhân viên không được để trống!");
-
-                if (employee.NgaySinh > DateTime.Now)
-                    throw new Exception("Ngày sinh không hợp lệ!");
-
-                if (string.IsNullOrWhiteSpace(employee.DienThoai))
-                    throw new Exception("Điện thoại không được để trống!");
-
-                if (!IsValidPhoneNumber(employee.DienThoai))
-                    throw new Exception("Số điện thoại không hợp lệ!");
-
-                if (!string.IsNullOrWhiteSpace(employee.Email) && !IsValidEmail(employee.Email))
-                    throw new Exception("Email không hợp lệ!");
-
-                EmployeeDAL.InsertEmployee(employee);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi thêm nhân viên: " + ex.Message);
-            }
+            return employeeDAL.GetEmployeeByID(employeeID);
         }
 
-        /// <summary>
-        /// Cập nhật nhân viên với validate
-        /// </summary>
-        public static bool UpdateEmployee(EmployeeDTO employee)
+        // Thêm nhân viên mới
+        public bool AddEmployee(EmployeeDTO employee)
         {
-            try
-            {
-                if (employee.MaNV <= 0)
-                    throw new Exception("Mã nhân viên không hợp lệ!");
+            // Validate dữ liệu
+            if (string.IsNullOrEmpty(employee.HoTen))
+                throw new Exception("Tên nhân viên không được rỗng");
 
-                if (string.IsNullOrWhiteSpace(employee.HoTen))
-                    throw new Exception("Họ tên nhân viên không được để trống!");
+            if (employee.NgaySinh > DateTime.Now)
+                throw new Exception("Ngày sinh không hợp lệ");
 
-                if (employee.NgaySinh > DateTime.Now)
-                    throw new Exception("Ngày sinh không hợp lệ!");
+            if (!string.IsNullOrEmpty(employee.SoDienThoai) && !IsValidPhone(employee.SoDienThoai))
+                throw new Exception("Số điện thoại không hợp lệ");
 
-                if (!IsValidPhoneNumber(employee.DienThoai))
-                    throw new Exception("Số điện thoại không hợp lệ!");
+            if (!string.IsNullOrEmpty(employee.Email) && !IsValidEmail(employee.Email))
+                throw new Exception("Email không hợp lệ");
 
-                if (!string.IsNullOrWhiteSpace(employee.Email) && !IsValidEmail(employee.Email))
-                    throw new Exception("Email không hợp lệ!");
-
-                EmployeeDAL.UpdateEmployee(employee);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi cập nhật nhân viên: " + ex.Message);
-            }
+            return employeeDAL.AddEmployee(employee);
         }
 
-        /// <summary>
-        /// Kiểm tra số điện thoại hợp lệ
-        /// </summary>
-        private static bool IsValidPhoneNumber(string phone)
+        // Cập nhật nhân viên
+        public bool UpdateEmployee(EmployeeDTO employee)
         {
-            return phone.Length >= 10 && phone.All(char.IsDigit);
+            // Validate dữ liệu
+            if (string.IsNullOrEmpty(employee.HoTen))
+                throw new Exception("Tên nhân viên không được rỗng");
+
+            if (employee.NgaySinh > DateTime.Now)
+                throw new Exception("Ngày sinh không hợp lệ");
+
+            if (!string.IsNullOrEmpty(employee.SoDienThoai) && !IsValidPhone(employee.SoDienThoai))
+                throw new Exception("Số điện thoại không hợp lệ");
+
+            if (!string.IsNullOrEmpty(employee.Email) && !IsValidEmail(employee.Email))
+                throw new Exception("Email không hợp lệ");
+
+            return employeeDAL.UpdateEmployee(employee);
         }
 
-        /// <summary>
-        /// Kiểm tra email hợp lệ
-        /// </summary>
-        private static bool IsValidEmail(string email)
+        // Xóa nhân viên
+        public bool DeleteEmployee(int employeeID)
+        {
+            return employeeDAL.DeleteEmployee(employeeID);
+        }
+
+        // Tìm kiếm nhân viên
+        public List<EmployeeDTO> SearchEmployees(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword))
+                return GetAllEmployees();
+
+            return employeeDAL.SearchEmployees(keyword);
+        }
+
+        // Hàm validate email
+        private bool IsValidEmail(string email)
         {
             try
             {
@@ -110,6 +85,13 @@ namespace DiDongViet_SalesManagement.BLL
             {
                 return false;
             }
+        }
+
+        // Hàm validate số điện thoại
+        private bool IsValidPhone(string phone)
+        {
+            if (string.IsNullOrEmpty(phone)) return false;
+            return System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[0-9]{10,11}$");
         }
     }
 }
