@@ -1,14 +1,13 @@
 using System;
 using System.Windows.Forms;
-using BLL;
-using DTO;
+using DiDongViet_SalesManagement.BLL;
+using DiDongViet_SalesManagement.DTO;
 
 namespace DiDongViet_SalesManagement.GUI
 {
     public partial class frmProduct : Form
     {
         private ProductBLL productBLL = new ProductBLL();
-        private int selectedProductID = -1;
 
         public frmProduct()
         {
@@ -18,16 +17,7 @@ namespace DiDongViet_SalesManagement.GUI
         private void frmProduct_Load(object sender, EventArgs e)
         {
             LoadProducts();
-            SetupUI();
-        }
-
-        private void SetupUI()
-        {
-            this.Text = "Quản lý Sản phẩm";
-            this.BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
-            this.Font = new System.Drawing.Font("Segoe UI", 10f);
-            picProduct.SizeMode = PictureBoxSizeMode.Zoom;
-            picProduct.BorderStyle = BorderStyle.Fixed3D;
+            StyleUI();
         }
 
         private void LoadProducts()
@@ -36,7 +26,6 @@ namespace DiDongViet_SalesManagement.GUI
             {
                 var products = productBLL.GetAllProducts();
                 dgvProducts.DataSource = products;
-                dgvProducts.AutoResizeColumns();
             }
             catch (Exception ex)
             {
@@ -44,44 +33,36 @@ namespace DiDongViet_SalesManagement.GUI
             }
         }
 
+        private void StyleUI()
+        {
+            dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvProducts.BackgroundColor = System.Drawing.Color.White;
+        }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrEmpty(txtProductName.Text) || string.IsNullOrEmpty(txtImportPrice.Text) || string.IsNullOrEmpty(txtSalePrice.Text))
+                var product = new ProductDTO
                 {
-                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin!");
-                    return;
-                }
-
-                ProductDTO product = new ProductDTO
-                {
-                    ProductName = txtProductName.Text,
-                    BrandID = string.IsNullOrEmpty(txtBrand.Text) ? 0 : int.Parse(txtBrand.Text),
-                    CategoryID = string.IsNullOrEmpty(txtCategory.Text) ? 0 : int.Parse(txtCategory.Text),
-                    ImportPrice = decimal.Parse(txtImportPrice.Text),
-                    SalePrice = decimal.Parse(txtSalePrice.Text),
-                    QuantityInStock = string.IsNullOrEmpty(txtQuantity.Text) ? 0 : int.Parse(txtQuantity.Text),
-                    Color = txtColor.Text,
-                    Warranty = txtWarranty.Text,
-                    ImagePath = txtImagePath.Text
+                    MaSanPham = txtProductCode.Text.Trim(),
+                    TenSP = txtProductName.Text.Trim(),
+                    GiaNhap = decimal.Parse(txtBuyPrice.Text),
+                    GiaBan = decimal.Parse(txtSellPrice.Text),
+                    MauSac = txtColor.Text.Trim(),
+                    TrangThai = "Hoạt động"
                 };
 
-                bool result = productBLL.AddProduct(product);
-                if (result)
+                if (productBLL.AddProduct(product))
                 {
                     MessageBox.Show("Thêm sản phẩm thành công!");
-                    ClearForm();
+                    ClearInputs();
                     LoadProducts();
-                }
-                else
-                {
-                    MessageBox.Show("Thêm sản phẩm thất bại!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi thêm sản phẩm: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
@@ -89,41 +70,33 @@ namespace DiDongViet_SalesManagement.GUI
         {
             try
             {
-                if (selectedProductID == -1)
+                if (dgvProducts.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Vui lòng chọn sản phẩm để cập nhật!");
+                    MessageBox.Show("Vui lòng chọn sản phẩm!");
                     return;
                 }
 
-                ProductDTO product = new ProductDTO
+                var product = new ProductDTO
                 {
-                    ProductID = selectedProductID,
-                    ProductName = txtProductName.Text,
-                    BrandID = string.IsNullOrEmpty(txtBrand.Text) ? 0 : int.Parse(txtBrand.Text),
-                    CategoryID = string.IsNullOrEmpty(txtCategory.Text) ? 0 : int.Parse(txtCategory.Text),
-                    ImportPrice = decimal.Parse(txtImportPrice.Text),
-                    SalePrice = decimal.Parse(txtSalePrice.Text),
-                    QuantityInStock = string.IsNullOrEmpty(txtQuantity.Text) ? 0 : int.Parse(txtQuantity.Text),
-                    Color = txtColor.Text,
-                    Warranty = txtWarranty.Text,
-                    ImagePath = txtImagePath.Text
+                    MaSP = (int)dgvProducts.SelectedRows[0].Cells["MaSP"].Value,
+                    MaSanPham = txtProductCode.Text.Trim(),
+                    TenSP = txtProductName.Text.Trim(),
+                    GiaNhap = decimal.Parse(txtBuyPrice.Text),
+                    GiaBan = decimal.Parse(txtSellPrice.Text),
+                    MauSac = txtColor.Text.Trim(),
+                    TrangThai = "Hoạt động"
                 };
 
-                bool result = productBLL.UpdateProduct(product);
-                if (result)
+                if (productBLL.UpdateProduct(product))
                 {
                     MessageBox.Show("Cập nhật sản phẩm thành công!");
-                    ClearForm();
+                    ClearInputs();
                     LoadProducts();
-                }
-                else
-                {
-                    MessageBox.Show("Cập nhật sản phẩm thất bại!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi cập nhật sản phẩm: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
@@ -131,85 +104,25 @@ namespace DiDongViet_SalesManagement.GUI
         {
             try
             {
-                if (selectedProductID == -1)
+                if (dgvProducts.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Vui lòng chọn sản phẩm để xóa!");
+                    MessageBox.Show("Vui lòng chọn sản phẩm!");
                     return;
                 }
 
-                if (MessageBox.Show("Bạn chắc chắn muốn xóa sản phẩm này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                int productID = (int)dgvProducts.SelectedRows[0].Cells["MaSP"].Value;
+                if (MessageBox.Show("Bạn có chắc muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    bool result = productBLL.DeleteProduct(selectedProductID);
-                    if (result)
+                    if (productBLL.DeleteProduct(productID))
                     {
                         MessageBox.Show("Xóa sản phẩm thành công!");
-                        ClearForm();
                         LoadProducts();
                     }
-                    else
-                    {
-                        MessageBox.Show("Xóa sản phẩm thất bại!");
-                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi xóa sản phẩm: " + ex.Message);
-            }
-        }
-
-        private void dgvProducts_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            try
-            {
-                if (e.RowIndex >= 0)
-                {
-                    selectedProductID = (int)dgvProducts.Rows[e.RowIndex].Cells["ProductID"].Value;
-                    txtProductName.Text = dgvProducts.Rows[e.RowIndex].Cells["ProductName"].Value.ToString();
-                    txtBrand.Text = dgvProducts.Rows[e.RowIndex].Cells["BrandID"].Value.ToString();
-                    txtCategory.Text = dgvProducts.Rows[e.RowIndex].Cells["CategoryID"].Value.ToString();
-                    txtImportPrice.Text = dgvProducts.Rows[e.RowIndex].Cells["ImportPrice"].Value.ToString();
-                    txtSalePrice.Text = dgvProducts.Rows[e.RowIndex].Cells["SalePrice"].Value.ToString();
-                    txtQuantity.Text = dgvProducts.Rows[e.RowIndex].Cells["QuantityInStock"].Value.ToString();
-                    txtColor.Text = dgvProducts.Rows[e.RowIndex].Cells["Color"].Value?.ToString() ?? "";
-                    txtWarranty.Text = dgvProducts.Rows[e.RowIndex].Cells["Warranty"].Value?.ToString() ?? "";
-                    txtImagePath.Text = dgvProducts.Rows[e.RowIndex].Cells["ImagePath"].Value?.ToString() ?? "";
-
-                    // Hiển thị ảnh sản phẩm
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(txtImagePath.Text))
-                        {
-                            picProduct.ImageLocation = txtImagePath.Text;
-                        }
-                    }
-                    catch
-                    {
-                        picProduct.Image = null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi chọn sản phẩm: " + ex.Message);
-            }
-        }
-
-        private void btnBrowseImage_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp|All Files|*.*";
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    txtImagePath.Text = openFileDialog.FileName;
-                    picProduct.ImageLocation = openFileDialog.FileName;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi chọn ảnh: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
@@ -217,16 +130,9 @@ namespace DiDongViet_SalesManagement.GUI
         {
             try
             {
-                if (string.IsNullOrEmpty(txtSearch.Text))
-                {
-                    LoadProducts();
-                }
-                else
-                {
-                    var products = productBLL.SearchProducts(txtSearch.Text);
-                    dgvProducts.DataSource = products;
-                    dgvProducts.AutoResizeColumns();
-                }
+                string keyword = txtSearch.Text.Trim();
+                var products = productBLL.SearchProducts(keyword);
+                dgvProducts.DataSource = products;
             }
             catch (Exception ex)
             {
@@ -234,20 +140,25 @@ namespace DiDongViet_SalesManagement.GUI
             }
         }
 
-        private void ClearForm()
+        private void dgvProducts_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex >= 0)
+            {
+                txtProductCode.Text = dgvProducts.Rows[e.RowIndex].Cells["MaSanPham"].Value?.ToString() ?? "";
+                txtProductName.Text = dgvProducts.Rows[e.RowIndex].Cells["TenSP"].Value?.ToString() ?? "";
+                txtBuyPrice.Text = dgvProducts.Rows[e.RowIndex].Cells["GiaNhap"].Value?.ToString() ?? "";
+                txtSellPrice.Text = dgvProducts.Rows[e.RowIndex].Cells["GiaBan"].Value?.ToString() ?? "";
+                txtColor.Text = dgvProducts.Rows[e.RowIndex].Cells["MauSac"].Value?.ToString() ?? "";
+            }
+        }
+
+        private void ClearInputs()
+        {
+            txtProductCode.Clear();
             txtProductName.Clear();
-            txtBrand.Clear();
-            txtCategory.Clear();
-            txtImportPrice.Clear();
-            txtSalePrice.Clear();
-            txtQuantity.Clear();
+            txtBuyPrice.Clear();
+            txtSellPrice.Clear();
             txtColor.Clear();
-            txtWarranty.Clear();
-            txtImagePath.Clear();
-            txtSearch.Clear();
-            picProduct.Image = null;
-            selectedProductID = -1;
         }
     }
 }

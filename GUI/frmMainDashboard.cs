@@ -1,6 +1,5 @@
 using System;
 using System.Windows.Forms;
-using DiDongViet_SalesManagement.DTO;
 
 namespace DiDongViet_SalesManagement.GUI
 {
@@ -13,74 +12,47 @@ namespace DiDongViet_SalesManagement.GUI
 
         private void frmMainDashboard_Load(object sender, EventArgs e)
         {
-            this.Text = "Dashboard - Di Động Việt";
             this.WindowState = FormWindowState.Maximized;
-            lblWelcome.Text = $"Xin chào, {GlobalData.CurrentUser.HoTen}!";
-            lblRole.Text = $"Quyền: {GlobalData.CurrentUser.LoaiTK}";
-            LoadDashboardData();
         }
 
-        private void LoadDashboardData()
+        private void đăngXuấtToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Hiển thị thống kê
-            lblTotalProducts.Text = "250 sản phẩm";
-            lblInventory.Text = "1,500 chiếc";
-            lblTodayRevenue.Text = "25,500,000 đ";
-            lblTodayInvoices.Text = "15 hóa đơn";
-        }
-
-        private void btnProduct_Click(object sender, EventArgs e)
-        {
-            frmProduct frm = new frmProduct();
-            frm.ShowDialog();
-        }
-
-        private void btnEmployee_Click(object sender, EventArgs e)
-        {
-            frmEmployee frm = new frmEmployee();
-            frm.ShowDialog();
-        }
-
-        private void btnCustomer_Click(object sender, EventArgs e)
-        {
-            frmCustomer frm = new frmCustomer();
-            frm.ShowDialog();
-        }
-
-        private void btnInvoice_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Chức năng bán hàng", "Thông báo");
-        }
-
-        private void btnImport_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Chức năng nhập hàng", "Thông báo");
-        }
-
-        private void btnWarehouse_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Chức năng quản lý kho", "Thông báo");
-        }
-
-        private void btnReport_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Chức năng báo cáo", "Thông báo");
-        }
-
-        private void btnLogout_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("Bạn có muốn đăng xuất?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            DialogResult result = MessageBox.Show("Bạn có chắc muốn đăng xuất?", "Xác nhận", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
             {
-                GlobalData.CurrentUser = null;
-                frmLogin loginForm = new frmLogin();
-                loginForm.Show();
                 this.Close();
             }
         }
 
-        private void frmMainDashboard_FormClosing(object sender, FormClosingEventArgs e)
+        private void sảnPhẩmToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            OpenForm(new frmProduct());
+        }
+
+        private void nhânViênToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenForm(new frmEmployee());
+        }
+
+        private void kháchhàngToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenForm(new frmCustomer());
+        }
+
+        private void nhàCungCấpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenForm(new frmSupplier());
+        }
+
+        private void khoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenForm(new frmWarehouse());
+        }
+
+        private void OpenForm(Form form)
+        {
+            form.MdiParent = this;
+            form.Show();
         }
     }
 }
