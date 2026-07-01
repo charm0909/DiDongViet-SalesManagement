@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1"/>
+  <text x="100" y="100" font-family="Arial, sans-serif" font-size="14" fill="#7b1fa2" text-anchor="middle" dominant-baseline="middle" font-weight="bold">
+    <tspan x="100" dy="0">iPhone 14 Pro</tspan>
+    <tspan x="100" dy="20" font-size="12" fill="#7b1fa2">Product Image</tspan>
+  </text>
+</svg>
