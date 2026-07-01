@@ -1,7 +1,6 @@
 using System;
 using System.Windows.Forms;
-using BLL;
-using System.Collections.Generic;
+using DiDongViet_SalesManagement.BLL;
 
 namespace DiDongViet_SalesManagement.GUI
 {
@@ -17,14 +16,7 @@ namespace DiDongViet_SalesManagement.GUI
         private void frmWarehouse_Load(object sender, EventArgs e)
         {
             LoadWarehouseData();
-            SetupUI();
-        }
-
-        private void SetupUI()
-        {
-            this.Text = "Quản lý Kho (Tồn kho)";
-            this.BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
-            this.Font = new System.Drawing.Font("Segoe UI", 10f);
+            StyleUI();
         }
 
         private void LoadWarehouseData()
@@ -33,8 +25,7 @@ namespace DiDongViet_SalesManagement.GUI
             {
                 var products = productBLL.GetAllProducts();
                 dgvWarehouse.DataSource = products;
-                dgvWarehouse.AutoResizeColumns();
-                HighlightLowStock();
+                CalculateStatistics();
             }
             catch (Exception ex)
             {
@@ -42,50 +33,41 @@ namespace DiDongViet_SalesManagement.GUI
             }
         }
 
-        private void HighlightLowStock()
+        private void StyleUI()
+        {
+            dgvWarehouse.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvWarehouse.BackgroundColor = System.Drawing.Color.White;
+        }
+
+        private void CalculateStatistics()
         {
             try
             {
-                foreach (DataGridViewRow row in dgvWarehouse.Rows)
+                var products = productBLL.GetAllProducts();
+                int totalProducts = products.Count;
+                int lowStockProducts = 0;
+                int totalQuantity = 0;
+
+                foreach (var product in products)
                 {
-                    if (row.Cells["QuantityInStock"].Value != null)
-                    {
-                        int quantity = int.Parse(row.Cells["QuantityInStock"].Value.ToString());
-                        if (quantity < 5) // Ngưỡng tối thiểu
-                        {
-                            row.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(255, 200, 200);
-                        }
-                    }
+                    totalQuantity += product.SoLuongTon;
+                    if (product.SoLuongTon < 5) // Cảnh báo dưới 5 cái
+                        lowStockProducts++;
                 }
+
+                lblTotalProducts.Text = "Tổng sản phẩm: " + totalProducts;
+                lblLowStock.Text = "Sắp hết hàng: " + lowStockProducts;
+                lblTotalQuantity.Text = "Tổng số lượng: " + totalQuantity;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi làm nổi bật tồn kho thấp: " + ex.Message);
+                MessageBox.Show("Lỗi tính toán thống kê: " + ex.Message);
             }
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             LoadWarehouseData();
-            MessageBox.Show("Đã làm tươi dữ liệu!");
-        }
-
-        private void btnExport_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "Excel Files|*.xlsx|CSV Files|*.csv|PDF Files|*.pdf";
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    // Xuất dữ liệu ra file (có thể dùng thư viện bên thứ ba)
-                    MessageBox.Show("Xuất dữ liệu thành công!");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi xuất dữ liệu: " + ex.Message);
-            }
         }
     }
 }

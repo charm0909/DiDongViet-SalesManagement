@@ -1,13 +1,13 @@
 using System;
 using System.Windows.Forms;
-using DAL;
+using DiDongViet_SalesManagement.BLL;
+using DiDongViet_SalesManagement.DTO;
 
 namespace DiDongViet_SalesManagement.GUI
 {
     public partial class frmSupplier : Form
     {
-        private SupplierDAL supplierDAL = new SupplierDAL();
-        private int selectedSupplierID = -1;
+        private SupplierBLL supplierBLL = new SupplierBLL();
 
         public frmSupplier()
         {
@@ -17,23 +17,15 @@ namespace DiDongViet_SalesManagement.GUI
         private void frmSupplier_Load(object sender, EventArgs e)
         {
             LoadSuppliers();
-            SetupUI();
-        }
-
-        private void SetupUI()
-        {
-            this.Text = "Quản lý Nhà cung cấp";
-            this.BackColor = System.Drawing.Color.FromArgb(245, 245, 245);
-            this.Font = new System.Drawing.Font("Segoe UI", 10f);
+            StyleUI();
         }
 
         private void LoadSuppliers()
         {
             try
             {
-                var suppliers = supplierDAL.GetAllSuppliers();
+                var suppliers = supplierBLL.GetAllSuppliers();
                 dgvSuppliers.DataSource = suppliers;
-                dgvSuppliers.AutoResizeColumns();
             }
             catch (Exception ex)
             {
@@ -41,37 +33,35 @@ namespace DiDongViet_SalesManagement.GUI
             }
         }
 
+        private void StyleUI()
+        {
+            dgvSuppliers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSuppliers.BackgroundColor = System.Drawing.Color.White;
+        }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrEmpty(txtSupplierName.Text) || string.IsNullOrEmpty(txtPhone.Text))
+                var supplier = new SupplierDTO
                 {
-                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin!");
-                    return;
-                }
+                    SupplierName = txtName.Text.Trim(),
+                    Phone = txtPhone.Text.Trim(),
+                    Email = txtEmail.Text.Trim(),
+                    Address = txtAddress.Text.Trim(),
+                    Status = "Hoạt động"
+                };
 
-                if (!IsValidPhone(txtPhone.Text))
-                {
-                    MessageBox.Show("Số điện thoại không hợp lệ!");
-                    return;
-                }
-
-                bool result = supplierDAL.AddSupplier(txtSupplierName.Text, txtPhone.Text, txtEmail.Text, txtAddress.Text);
-                if (result)
+                if (supplierBLL.AddSupplier(supplier))
                 {
                     MessageBox.Show("Thêm nhà cung cấp thành công!");
-                    ClearForm();
+                    ClearInputs();
                     LoadSuppliers();
-                }
-                else
-                {
-                    MessageBox.Show("Thêm nhà cung cấp thất bại!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi thêm nhà cung cấp: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
@@ -79,33 +69,32 @@ namespace DiDongViet_SalesManagement.GUI
         {
             try
             {
-                if (selectedSupplierID == -1)
+                if (dgvSuppliers.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Vui lòng chọn nhà cung cấp để cập nhật!");
+                    MessageBox.Show("Vui lòng chọn nhà cung cấp!");
                     return;
                 }
 
-                if (string.IsNullOrEmpty(txtSupplierName.Text) || string.IsNullOrEmpty(txtPhone.Text))
+                var supplier = new SupplierDTO
                 {
-                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin!");
-                    return;
-                }
+                    SupplierID = (int)dgvSuppliers.SelectedRows[0].Cells["SupplierID"].Value,
+                    SupplierName = txtName.Text.Trim(),
+                    Phone = txtPhone.Text.Trim(),
+                    Email = txtEmail.Text.Trim(),
+                    Address = txtAddress.Text.Trim(),
+                    Status = "Hoạt động"
+                };
 
-                bool result = supplierDAL.UpdateSupplier(selectedSupplierID, txtSupplierName.Text, txtPhone.Text, txtEmail.Text, txtAddress.Text);
-                if (result)
+                if (supplierBLL.UpdateSupplier(supplier))
                 {
                     MessageBox.Show("Cập nhật nhà cung cấp thành công!");
-                    ClearForm();
+                    ClearInputs();
                     LoadSuppliers();
-                }
-                else
-                {
-                    MessageBox.Show("Cập nhật nhà cung cấp thất bại!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi cập nhật nhà cung cấp: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
@@ -113,76 +102,35 @@ namespace DiDongViet_SalesManagement.GUI
         {
             try
             {
-                if (selectedSupplierID == -1)
+                if (dgvSuppliers.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Vui lòng chọn nhà cung cấp để xóa!");
+                    MessageBox.Show("Vui lòng chọn nhà cung cấp!");
                     return;
                 }
 
-                if (MessageBox.Show("Bạn chắc chắn muốn xóa nhà cung cấp này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                int supplierID = (int)dgvSuppliers.SelectedRows[0].Cells["SupplierID"].Value;
+                if (MessageBox.Show("Bạn có chắc muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    bool result = supplierDAL.DeleteSupplier(selectedSupplierID);
-                    if (result)
+                    if (supplierBLL.DeleteSupplier(supplierID))
                     {
                         MessageBox.Show("Xóa nhà cung cấp thành công!");
-                        ClearForm();
                         LoadSuppliers();
                     }
-                    else
-                    {
-                        MessageBox.Show("Xóa nhà cung cấp thất bại!");
-                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi xóa nhà cung cấp: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
-        }
-
-        private void dgvSuppliers_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            try
-            {
-                if (e.RowIndex >= 0)
-                {
-                    selectedSupplierID = (int)dgvSuppliers.Rows[e.RowIndex].Cells["SupplierID"].Value;
-                    txtSupplierName.Text = dgvSuppliers.Rows[e.RowIndex].Cells["SupplierName"].Value.ToString();
-                    txtPhone.Text = dgvSuppliers.Rows[e.RowIndex].Cells["Phone"].Value.ToString();
-                    txtEmail.Text = dgvSuppliers.Rows[e.RowIndex].Cells["Email"].Value?.ToString() ?? "";
-                    txtAddress.Text = dgvSuppliers.Rows[e.RowIndex].Cells["Address"].Value?.ToString() ?? "";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi chọn nhà cung cấp: " + ex.Message);
-            }
-        }
-
-        private void ClearForm()
-        {
-            txtSupplierName.Clear();
-            txtPhone.Clear();
-            txtEmail.Clear();
-            txtAddress.Clear();
-            selectedSupplierID = -1;
-            txtSearch.Clear();
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrEmpty(txtSearch.Text))
-                {
-                    LoadSuppliers();
-                }
-                else
-                {
-                    var suppliers = supplierDAL.SearchSuppliers(txtSearch.Text);
-                    dgvSuppliers.DataSource = suppliers;
-                    dgvSuppliers.AutoResizeColumns();
-                }
+                string keyword = txtSearch.Text.Trim();
+                var suppliers = supplierBLL.SearchSuppliers(keyword);
+                dgvSuppliers.DataSource = suppliers;
             }
             catch (Exception ex)
             {
@@ -190,9 +138,23 @@ namespace DiDongViet_SalesManagement.GUI
             }
         }
 
-        private bool IsValidPhone(string phone)
+        private void dgvSuppliers_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            return phone.Length >= 10 && phone.All(char.IsDigit);
+            if (e.RowIndex >= 0)
+            {
+                txtName.Text = dgvSuppliers.Rows[e.RowIndex].Cells["SupplierName"].Value?.ToString() ?? "";
+                txtPhone.Text = dgvSuppliers.Rows[e.RowIndex].Cells["Phone"].Value?.ToString() ?? "";
+                txtEmail.Text = dgvSuppliers.Rows[e.RowIndex].Cells["Email"].Value?.ToString() ?? "";
+                txtAddress.Text = dgvSuppliers.Rows[e.RowIndex].Cells["Address"].Value?.ToString() ?? "";
+            }
+        }
+
+        private void ClearInputs()
+        {
+            txtName.Clear();
+            txtPhone.Clear();
+            txtEmail.Clear();
+            txtAddress.Clear();
         }
     }
 }
